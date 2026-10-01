@@ -20,11 +20,12 @@ import kotlin.math.hypot
  * * [TRACKING] — the target was matched against the previous frame, so identity is
  *   continuous, but it has not been seen for long enough to call it stable.
  * * [STABLE] — matched for [TargetSelectorConfig.stableFrameThreshold] consecutive frames.
- * * [LOST] — the target has not been matched for [TargetSelectorConfig.lostFrameThreshold]
- *   consecutive frames *and* the detector is currently proposing nothing at all, so there is no
- *   replacement to adopt. The geometry is still reported so the overlay can fade it out, but it
- *   is no longer a live target. A *visible* replacement is adopted instead of reporting LOST —
- *   the scanner always prefers showing something over showing nothing.
+ * * [LOST] — **not produced by this selector.** [DefaultTargetSelector] reports "no target" as a
+ *   `null` return instead, so that "there is nothing to draw" stays reachable downstream: a
+ *   selector that answered with a `LOST` placeholder every frame would leave the overlay with no
+ *   way to ever stop drawing. This constant is produced by
+ *   [com.yscanner.detection.tracking.TemporalTracker], which re-emits the last smoothed quad with
+ *   `LOST` while it fades a disappeared target out.
  */
 enum class TrackingState { ACQUIRING, TRACKING, STABLE, LOST }
 
@@ -56,7 +57,8 @@ data class TrackedTarget(
  * @param minIoU minimum IoU for a candidate to count as the same document as the previous
  *   target. Too low and two adjacent documents get merged into one identity; too high and
  *   normal hand shake drops the lock.
- * @param lostFrameThreshold consecutive unmatched frames before [TrackingState.LOST].
+ * @param lostFrameThreshold consecutive unmatched frames before the target is given up and
+ *   `select` starts returning `null`.
  * @param stableFrameThreshold consecutive matched frames before [TrackingState.STABLE].
  */
 data class TargetSelectorConfig(
@@ -138,15 +140,17 @@ class DefaultTargetSelector(
         frameWidth: Int,
         frameHeight: Int
     ): TrackedTarget? {
-        // 1. Nothing to look at: decay the previous target rather than dropping it instantly.
+        // 1. Nothing to look at: hold the previous target briefly rather than dropping it at once.
         if (candidates.isEmpty()) {
             if (previous == null) return null
             missedFrames++
-            return if (missedFrames >= config.lostFrameThreshold) {
-                previous.copy(trackingState = TrackingState.LOST, stableFrameCount = 0)
-            } else {
-                previous.copy(trackingState = TrackingState.ACQUIRING, stableFrameCount = 0)
-            }
+            // Past the threshold the document is confirmed gone and there is nothing to select.
+            // Returning a placeholder here would make "no target" unreachable for every downstream
+            // consumer — the tracker would go on drawing an outline forever. The selector's job is
+            // to stop claiming a document it can no longer see; turning that into a fading outline
+            // is the tracker's job.
+            if (missedFrames >= config.lostFrameThreshold) return null
+            return previous.copy(trackingState = TrackingState.ACQUIRING, stableFrameCount = 0)
         }
 
         // 2. Tap override. Only the containment test matters here; a tap in empty space

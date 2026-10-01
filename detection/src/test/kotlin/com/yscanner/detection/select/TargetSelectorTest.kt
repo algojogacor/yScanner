@@ -163,7 +163,7 @@ class TargetSelectorTest {
     // ---------------------------------------------------------------- loss & stability
 
     @Test
-    fun `transitions to lost after N frames without a match`() {
+    fun `gives up on the target after N frames without a candidate`() {
         val selector = DefaultTargetSelector(TargetSelectorConfig(lostFrameThreshold = 3))
         val candidates = listOf(candidate("left", left))
 
@@ -173,16 +173,17 @@ class TargetSelectorTest {
         val matched = selector.select(candidates, acquired, null, 800, 800)
         assertThat(matched!!.trackingState).isEqualTo(TrackingState.TRACKING)
 
-        // Frames 1 and 2 without a candidate: not confirmed, but not yet lost.
+        // Frames 1 and 2 without a candidate: held, but no longer confirmed.
         val miss1 = selector.select(emptyList(), matched, null, 800, 800)
         assertThat(miss1!!.trackingState).isEqualTo(TrackingState.ACQUIRING)
+        assertThat(miss1.stableFrameCount).isEqualTo(0)
         val miss2 = selector.select(emptyList(), miss1, null, 800, 800)
         assertThat(miss2!!.trackingState).isEqualTo(TrackingState.ACQUIRING)
 
-        // Frame 3 reaches the threshold.
-        val miss3 = selector.select(emptyList(), miss2, null, 800, 800)
-        assertThat(miss3!!.trackingState).isEqualTo(TrackingState.LOST)
-        assertThat(miss3.stableFrameCount).isEqualTo(0)
+        // Frame 3 reaches the threshold. There is no longer a target to report — the selector stops
+        // claiming a document it cannot see, rather than answering with a LOST placeholder forever.
+        // Turning this into a fading outline is the tracker's job, not the selector's.
+        assertThat(selector.select(emptyList(), miss2, null, 800, 800)).isNull()
     }
 
     @Test
@@ -248,15 +249,14 @@ class TargetSelectorTest {
         val acquired = selector.select(candidates, null, null, 800, 800)
         assertThat(acquired!!.id).isEqualTo("target-1")
 
-        // Drive it to LOST, which advances the internal missed-frame counter past the limit.
+        // Drive it past the loss threshold, which advances the internal missed-frame counter.
         val miss1 = selector.select(emptyList(), acquired, null, 800, 800)
-        val lost = selector.select(emptyList(), miss1, null, 800, 800)
-        assertThat(lost!!.trackingState).isEqualTo(TrackingState.LOST)
+        assertThat(selector.select(emptyList(), miss1, null, 800, 800)).isNull()
 
         selector.reset()
 
-        // If missedFrames had survived reset, this first miss would immediately re-report LOST.
-        val afterReset = selector.select(emptyList(), lost, null, 800, 800)
+        // If missedFrames had survived reset, this very first miss would already give up.
+        val afterReset = selector.select(emptyList(), acquired, null, 800, 800)
         assertThat(afterReset!!.trackingState).isEqualTo(TrackingState.ACQUIRING)
 
         // The id counter is cleared too: the next cold start is target-1 again.
