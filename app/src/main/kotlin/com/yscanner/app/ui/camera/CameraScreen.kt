@@ -28,11 +28,21 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.yscanner.detection.tracking.SmoothedTarget
+import com.yscanner.geometry.CoordinateTransformer
 
+/**
+ * @param documentTarget optional tracked document to outline. `null` renders no overlay, which is
+ *   the default so existing callers are unaffected.
+ * @param coordinateTransformer optional transformer used to project the target's quad into
+ *   preview-view pixels. Must be non-null for an overlay to be drawn; also defaults to `null`.
+ */
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    documentTarget: SmoothedTarget? = null,
+    coordinateTransformer: CoordinateTransformer? = null
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -84,13 +94,22 @@ fun CameraScreen(
                 modifier = Modifier.fillMaxSize()
             )
 
-            // 2. Tap-to-Focus Reticle Overlay
+            // 2. Document Outline Overlay (only when a target and transformer are supplied)
+            if (documentTarget != null && coordinateTransformer != null) {
+                DocumentOverlay(
+                    target = documentTarget,
+                    transformer = coordinateTransformer,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // 3. Tap-to-Focus Reticle Overlay
             FocusReticle(
                 targetPoint = uiState.lastFocusPoint,
                 triggerKey = uiState.focusTriggerKey
             )
 
-            // 3. Top Control Bar (Flash Mode)
+            // 4. Top Control Bar (Flash Mode)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -108,7 +127,7 @@ fun CameraScreen(
                 )
             }
 
-            // 4. Bottom Control Bar (Shutter Button)
+            // 5. Bottom Control Bar (Shutter Button)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
