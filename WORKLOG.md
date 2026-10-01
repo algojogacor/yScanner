@@ -588,3 +588,86 @@ and let a tap override it.
 
 `feat(geometry): add convex polygon intersection, IoU and quad centroid`
 `feat(detection): add target selection and tap-to-guide (M05)`
+
+---
+
+## 2026-10-01 — M06 Temporal Tracking & Stable Overlay
+
+### Objective
+
+Damp detector jitter on the selected quad, decide how long a disappeared target stays on screen, and
+draw the result over the camera preview.
+
+**Note on milestone numbering:** the plan *file* numbers are offset by one from the milestone
+numbers. `plans/007-temporal-tracking.md` is titled "M06: Temporal Tracking & Stable Overlay", so
+the milestone called M06 is this entry — the earlier `OneEuroFilter`/`QuadSmoother` commit was only
+its spike-S03 math.
+
+### Changes
+
+**`:detection`**
+- `tracking/TemporalTracker.kt` — `SmoothedTarget` + the `TemporalTracker` interface. Written by the
+  lead as the frozen contract before either implementation half was delegated.
+- `tracking/DefaultTemporalTracker.kt` — smooths the selected quad, retains the last smoothed quad
+  through a brief loss as `LOST`, then returns `null`. Resets the smoother whenever
+  `TrackedTarget.id` changes.
+- `select/TargetSelector.kt` — **contract fix.** `select` now returns `null` once the target is
+  confirmed gone, instead of a `LOST` placeholder on every subsequent frame. `TrackingState.LOST`
+  is now produced only by the tracker.
+
+**`:app`**
+- `ui/camera/DocumentOverlay.kt` — `overlayStyleFor` (pure state→style), `previewCorners` (pure
+  `IMAGE_ANALYSIS → PREVIEW_VIEW` projection), and a thin `DocumentOverlay` Canvas wrapper.
+- `ui/camera/CameraScreen.kt` — two optional parameters (`documentTarget`, `coordinateTransformer`),
+  both defaulting to `null`, stacking the overlay over the preview.
+
+### Validation
+
+- `./gradlew test` → **BUILD SUCCESSFUL**.
+- **Full suite: 281 unique tests, 0 failures, 0 errors** (264 after M05).
+
+### Results
+
+- `DefaultTemporalTrackerTest` (11), `DocumentOverlayTest` (6), `TargetSelectorTest` (12).
+
+### Decisions
+
+1. **`TemporalTracker` lives in `:detection`, not `:camera` as `plans/007` specifies.** `:camera`
+   does not depend on `:detection`, so the plan's package would have forced either a wrong-way module
+   dependency or a duplicate `TrackingState` enum. ARCHITECTURE.md §73 permits concrete boundaries
+   to differ; the deviation is recorded in the interface's KDoc.
+2. **`NO_TARGET` is a `null` return, not an enum constant.** A `SmoothedTarget` carrying `NO_TARGET`
+   *and* a non-null `quad` would be self-contradictory, and nullability already says it once.
+3. **Identity/stability owned by the selector; geometry by the tracker**, with the tracker passing
+   `trackingState` through untouched. Two components independently deciding "is this stable?" would
+   eventually disagree and the overlay would contradict itself. Velocity-based stabilisation, which
+   `plans/007` puts in the tracker, is instead a refinement of the rule *inside* the selector.
+4. **`CameraScreen` wiring is optional and inert by default.** No fake detector was invented to make
+   the pipeline look connected end to end; the real one cannot exist until S01 is decided.
+
+### Problems
+
+- **A composition defect that neither component's own tests could see.** `DefaultTargetSelector`
+  returned a `LOST` placeholder on every frame after the loss threshold, so "no target" was
+  unreachable downstream: `DefaultTemporalTracker` never received `null`, never began its own grace
+  countdown, and **the outline would have stayed on the preview forever.** Found by tracing the two
+  components together, not by running the suite. A failing test
+  (`overlay stops being drawn once the document leaves for good`) was written first to prove the bug,
+  then the selector contract was fixed. This is the third defect of the same shape this session:
+  individually-correct components whose *composition* is wrong, invisible to per-component tests.
+- The tracker's `resumes smoothing after a brief loss` test uses a high-beta One Euro config
+  (`beta = 1.0`) rather than the production default, because the default config lags ~140 px on a
+  100 px jump and cannot satisfy the assertion. The test therefore proves the *mechanism* (no frozen
+  state after a gap), not the default tuning. Noted rather than hidden.
+
+### Next
+
+- **M07 Auto Capture** (`plans/008`) — depends on M06 and M10. `SmoothedTarget.isReadyForCapture`
+  is a provisional gate (`state == STABLE`) that M07 is expected to tighten.
+- M05's camera half (tap → CameraX focus/metering) still not done.
+- **S01 gate still open — human decision required before any model weights are vendored.**
+
+### Commit
+
+`feat(detection): add TemporalTracker and fix unreachable no-target state (M06)`
+`feat(app): add tracked-document outline overlay (M06)`
