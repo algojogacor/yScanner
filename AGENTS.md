@@ -1559,7 +1559,7 @@ Do not claim performance improvements without measurements.
 
 ---
 
-## 53WORKLOG.md
+## 53. WORKLOG.md
 
 `WORKLOG.md` is the project's chronological engineering journal.
 
@@ -1673,6 +1673,76 @@ Use:
 When implementation deviates from the plan, do not silently rewrite history.
 
 Record the deviation in `WORKLOG.md` and update the relevant plan only when necessary for the remaining work.
+
+# 54. Git Remote and Checkpoint Rules
+
+The repository may have a configured Git remote.
+
+When a remote exists, meaningful completed milestones and validated spikes MUST be pushed to the configured remote after the corresponding checkpoint commit.
+
+Standard workflow:
+
+1. Implement the planned milestone or spike.
+2. Run the required build and tests.
+3. Run relevant benchmarks or validation.
+4. Inspect the resulting diff.
+5. Update WORKLOG.md.
+6. Create the checkpoint commit.
+7. Push the checkpoint commit to the configured remote.
+8. Verify that the working tree remains clean.
+
+Use normal push operations only.
+
+Never use:
+
+* `git push --force`
+* `git push --force-with-lease`
+* destructive remote history rewriting
+
+unless explicitly instructed by the user.
+
+Do not push:
+
+* secrets;
+* credentials;
+* API keys;
+* private document contents;
+* generated artifacts that are not intended for version control;
+* unrelated user changes.
+
+Do not create a Git remote automatically.
+
+If no remote is configured, continue working locally and explicitly record that remote synchronization is unavailable.
+
+Do not stop ordinary autonomous work merely because a remote is unavailable.
+
+## Push Frequency
+
+Push after:
+
+* completed implementation milestones;
+* completed technical spikes;
+* meaningful architectural changes;
+* important regression fixes;
+* other deliberate checkpoint commits.
+
+Do not push after every trivial file edit or intermediate experiment.
+
+## Before Pushing
+
+Always verify:
+
+```bash
+git status
+git diff --check
+git log -1 --oneline
+git remote -v
+```
+
+The push must contain only changes belonging to the current checkpoint.
+
+After pushing, verify the local branch is synchronized with its configured upstream.
+
 
 
 # 54. FINAL AGENT MINDSET
