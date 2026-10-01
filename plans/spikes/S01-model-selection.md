@@ -99,9 +99,54 @@ Select the model that:
 
 ## Result / Decision Record
 
-> **Status:** PENDING — to be completed during implementation phase
+> **Status:** 🚧 AT DECISION GATE — evidence gathered, awaiting human selection.
+> **Decision owner:** project owner (not the agent).
 >
-> **Selected model:** TBD
-> **Rationale:** TBD
-> **Benchmark results:** TBD
-> **Acceleration decision:** TBD
+> **Candidate survey:** [`S01-candidates.md`](./S01-candidates.md) — 9 model families,
+> 1 zero-weight classical baseline, 4 datasets. All URLs fetched and verified;
+> licence status recorded per candidate; 12 open unknowns listed explicitly.
+>
+> **Selected model:** NOT SELECTED — deliberately deferred. No weights have been
+> vendored and no pipeline stage is irreversibly coupled to any candidate.
+> **Rationale:** TBD (human decision).
+> **Benchmark results:** none exist for any candidate. Every published figure in the
+> survey is desktop GPU, desktop CPU, or a dataset evaluation. There is **no
+> physical-Android-device latency for any candidate** — all latency claims are
+> therefore marked `not yet validated on target device`.
+> **Acceleration decision:** TBD — CPU is the mandatory baseline; GPU/NNAPI is a
+> measured-benefit decision that cannot be made without a target device.
+>
+> ### What is blocked vs. what is not
+>
+> **Blocked by this gate:** selecting/vendoring final weights; wiring a concrete
+> `SegmentationModel` implementation; any accuracy claim for M03.
+>
+> **Not blocked (already built, model-agnostic):** the `SegmentationModel` interface
+> and lifecycle (`ModelManager`), `ModelDescriptor` / `ModelInput` /
+> `SegmentationOutput` types, the `OutputKind` discriminator that lets a mask model
+> and a corner-heatmap model share one pipeline, the frame preprocessor
+> (`FrameData` → tensor, with fused rotation + scale + normalisation), the
+> postprocessor (mask pass-through and corner-heatmap decoding), and the
+> `InferenceBenchmark` harness that will produce the missing device numbers.
+>
+> ### Prerequisites before a final decision can be closed
+>
+> 1. Pick a target device (mid-range, Snapdragon 600-class, 8 GB).
+> 2. Run an **ONNX → TFLite conversion spike** for the shortlisted candidates;
+>    op-support for BiFPN/attention (DocAligner) and Transformer ops (SegFormer) is
+>    unverified and is the single largest technical risk.
+> 3. Run the `InferenceBenchmark` harness on that device to fill the empty
+>    latency/RAM columns. Until then, no candidate can be scored against the
+>    ≤50 ms / ≤50 MB budgets.
+>
+> ### Architectural note for the decision
+>
+> The dominant axis is **output contract**, not model accuracy. `AGENTS.md §14`
+> mandates the `segmentation → boundary → envelope → quad` pipeline and warns
+> against assuming `segmentation → 4 corners`. The only purpose-built,
+> permissively-licensed, document-specific pretrained model found (DocAligner,
+> Apache-2.0) emits **corner heatmaps**, i.e. it is the very shortcut §14 warns
+> about. Choosing it is therefore an architecture decision requiring explicit
+> product-level direction, not merely a model swap. `OutputKind` exists so the
+> module can support either without a rewrite.
+

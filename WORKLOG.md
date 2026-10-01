@@ -210,3 +210,102 @@ Per explicit direction, perform the migration thoroughly now, while the project 
 ### Commit
 
 `refactor(naming): migrate namespace and identity from LocalScan to yScanner`
+
+---
+
+## 2026-10-01 — Spike S01 (evidence) + M03 model-independent scaffolding
+
+### Objective
+
+Close the evidence-gathering half of spike S01 and build every part of M03 that does
+**not** depend on the final model choice. Explicit direction: the final model must **not**
+be selected autonomously — candidates are collected and the decision is escalated.
+
+### Changes
+
+**S01 evidence — `plans/spikes/S01-candidates.md` (new)**
+- Surveyed 9 model families, 1 zero-weight classical baseline, 4 datasets.
+- Every candidate URL fetched and verified; licence recorded per candidate.
+- Every benchmark labelled with provenance. **No candidate has a published
+  physical-Android-device latency**, so all latency figures are marked
+  `not yet validated on target device`. No numbers were invented.
+- 12 unverifiable items recorded explicitly rather than guessed.
+- Key finding: the only purpose-built, permissively-licensed, document-specific
+  pretrained model (DocAligner, Apache-2.0, 1.7–14.7 MB) emits **corner heatmaps**,
+  which is precisely the `segmentation → 4 corners` shortcut that `AGENTS.md §14`
+  warns against. This makes the decision architectural, not just a model swap.
+- `plans/spikes/S01-model-selection.md` decision record updated to AT DECISION GATE,
+  with the blocked/not-blocked split and the prerequisites to close it.
+
+**M03 scaffolding — `:detection` (new, model-agnostic)**
+- `model/ModelTypes.kt` — `ModelDescriptor`, `ModelInput`, `SegmentationOutput`,
+  `ModelDType`, `Normalization`, and an **`OutputKind`** discriminator
+  (`MASK` / `CORNER_HEATMAP` / `EDGE_MAP`) so a mask model and a corner model can
+  share one pipeline without a rewrite.
+- `model/SegmentationModel.kt` — the replaceable-model interface plus `ModelManager`
+  (load-once-per-session, thread-safe, retries after a failed load, idempotent close).
+- `preprocess/FrameData.kt` + `preprocess/FramePreprocessor.kt` — Android-free frame
+  representation plus a single-pass YUV_420_888 → RGB preprocessor that **fuses
+  rotation, scaling and normalisation into one sampling pass**. The naive
+  decode→rotate→scale path would allocate two full-resolution ARGB buffers per frame
+  (~48 MB each at 12 MP); this allocates only the model tensor (~786 KB at 256²).
+- `postprocess/SegmentationPostprocessor.kt` — normalises raw model output into a
+  neutral `ProbabilityMap`, plus `decodeCorners` for corner-heatmap models.
+- `bench/InferenceBenchmark.kt` — warm-up-aware latency harness reporting
+  mean/p50/p95/p99 and implied FPS, plus a `RollingLatencyMonitor` for live sessions.
+  Every `BenchmarkReport` carries explicit `validatedOnDevice` provenance so a desktop
+  number can never be mistaken for a device result.
+- `test/.../FakeSegmentationModel.kt` — deterministic weight-free model, so the whole
+  pipeline is testable today despite having no trained weights.
+
+### Validation
+
+- `./gradlew :detection:test` → **BUILD SUCCESSFUL**.
+- **50 new tests, 0 failures, 0 errors.** Coverage includes: rotation correctness for
+  0/90/180/270 via a marked-pixel ground truth, normalisation modes, UINT8 vs FLOAT32
+  packing, tensor-size validation, plane indexing, corner-heatmap decoding, model
+  lifecycle (load-once, retry-after-failure, idempotent close, infer-before-load
+  rejection), percentile maths, and window-bounded drop tracking.
+- Two initial test failures were **assertion errors in the tests, not defects in the
+  implementation**; both were corrected and the production code was left unchanged.
+
+### Decisions
+
+1. **No model selected.** Per direction, the gate is escalated to the project owner.
+   No weights vendored; no pipeline stage irreversibly coupled to a candidate.
+2. **`OutputKind` in the descriptor.** Chosen specifically so the mask-vs-corners
+   architectural fork can be decided later without rewriting `:detection`.
+3. **Preprocessing kept Android-free.** `FrameData` mirrors `android.media.Image`
+   without depending on it, which is why the rotation maths is JVM-testable with
+   hand-built buffers — no device, no Robolectric.
+4. **Benchmark provenance is a first-class field.** The project forbids claiming
+   performance without measurement; making `validatedOnDevice` mandatory in the
+   report type enforces that at the type level.
+
+### Problems
+
+- **Remote push is blocked.** `git push` fails with
+  `could not read Username for 'https://github.com'` — no cached credentials, and the
+  `gh` CLI is installed but not logged in. Two checkpoint commits are therefore sitting
+  locally and unpushed (`c06b7af`, `f20d15f`). Per `AGENTS.md §54` autonomous work
+  continues locally; remote sync is recorded as unavailable pending credentials.
+- **APK size.** The debug APK is **165 MB**, of which **~111 MB is
+  `libopencv_java4.so`** across four ABIs (x86_64 50 MB, x86 35 MB, arm64-v8a 16 MB,
+  armeabi-v7a 10 MB) plus ~21 MB `libc++_shared.so`. Only `arm64-v8a` + `armeabi-v7a`
+  (~26 MB) are needed on real hardware; the x86 ABIs are emulator-only dead weight.
+  Not addressed yet — it belongs to M20/M22, but it is recorded here because it is
+  large enough to be a release blocker.
+- Gradle cannot run inside the tool sandbox (it needs to write
+  `~/.gradle/caches/journal-1`), so every build requires the sandbox to be lifted.
+
+### Next
+
+- **HUMAN DECISION REQUIRED at the S01 gate** — pick the model family before any
+  weights are vendored.
+- M04 geometry engine is in progress (pure Kotlin, no OpenCV — see the APK-size finding).
+- After M04 lands: wire `CandidateExtractor` to bridge `ProbabilityMap` → `BinaryMask`
+  → boundary → quad.
+
+### Commit
+
+`feat(detection): add model-agnostic segmentation scaffolding and benchmark harness`
