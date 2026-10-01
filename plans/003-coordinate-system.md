@@ -29,9 +29,9 @@ The `:camera` module exists with a basic CameraX implementation including Previe
 - M01: Core Camera implementation must be complete to provide the CameraX use cases and their respective resolutions/crop rects.
 
 ## Components
-- `com.localscan.camera.transform.CoordinateTransformer`: Interface defining the transformation contracts.
-- `com.localscan.camera.transform.CameraCoordinateTransformer`: Implementation using Android `Matrix` and CameraX metadata.
-- `com.localscan.camera.transform.PointF`: Data class or alias for points.
+- `com.yscanner.camera.transform.CoordinateTransformer`: Interface defining the transformation contracts.
+- `com.yscanner.camera.transform.CameraCoordinateTransformer`: Implementation using Android `Matrix` and CameraX metadata.
+- `com.yscanner.camera.transform.PointF`: Data class or alias for points.
 
 ## Data Flow
 1. ML model produces points in ImageAnalysis coordinate space (e.g., 640x480).
@@ -40,9 +40,9 @@ The `:camera` module exists with a basic CameraX implementation including Previe
 4. Upon capture, normalized points are passed to `CoordinateTransformer.normalizedToCapture()` for cropping the high-resolution image.
 
 ## Implementation Steps
-1. **Define Core Interfaces**: Create `com.localscan.camera.transform.CoordinateTransformer` containing methods like `analysisToSensor`, `sensorToPreview`, `sensorToCapture`, `analysisToCapture`, and normalized conversions.
+1. **Define Core Interfaces**: Create `com.yscanner.camera.transform.CoordinateTransformer` containing methods like `analysisToSensor`, `sensorToPreview`, `sensorToCapture`, `analysisToCapture`, and normalized conversions.
 2. **Implement Matrix Utilities**: Create helper functions for generating Android `Matrix` objects that apply rotation, scaling (Center-Crop/Fit), and translation based on source and destination `Size` and `rotationDegrees`.
-3. **Implement Transformer**: Create `com.localscan.camera.transform.CameraCoordinateTransformer` implementing the interface. Use CameraX's `ImageProxy.cropRect`, `ImageProxy.imageInfo.rotationDegrees`, and view `TransformationInfo` if available, or fallback to manual matrix calculations.
+3. **Implement Transformer**: Create `com.yscanner.camera.transform.CameraCoordinateTransformer` implementing the interface. Use CameraX's `ImageProxy.cropRect`, `ImageProxy.imageInfo.rotationDegrees`, and view `TransformationInfo` if available, or fallback to manual matrix calculations.
 4. **Normalized Coordinates**: Implement the mapping to/from normalized coordinates (0.0 to 1.0) as an intermediary space to simplify analysis-to-capture transformations.
 5. **PDF Coordinates**: Implement mapping to standardized PDF dimensions (e.g., A4 at 72 PPI) for final output space calculations.
 6. **Write Unit Tests**: Create `CameraCoordinateTransformerTest` covering specific known input/output pairs for 0, 90, 180, and 270-degree rotations, and 4:3 to 16:9 aspect ratio conversions.

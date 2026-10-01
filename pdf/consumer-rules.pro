@@ -1,1 +1,1 @@
--keep class com.localscan.pdf.** { *; }
+-keep class com.yscanner.pdf.** { *; }

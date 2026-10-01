@@ -1,1 +1,1 @@
--keep class com.localscan.imageimport.** { *; }
+-keep class com.yscanner.imageimport.** { *; }

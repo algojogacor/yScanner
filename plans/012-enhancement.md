@@ -35,21 +35,21 @@ Perspective-corrected document images are available from the cropping pipeline (
 - Spike S05: Enhancement Pipeline (for algorithm selection and OpenCV integration).
 
 ## Components
-- `com.localscan.enhancement.EnhancementEngine`: Interface defining the processing contract.
-- `com.localscan.enhancement.EnhancementMode`: Enum containing `ORIGINAL`, `NATURAL`, `CLEAN`.
-- `com.localscan.enhancement.EnhancementParameters`: Data class containing tuning values (brightness, contrast, saturation, sharpness, shadowReduction, noiseReduction).
-- `com.localscan.enhancement.pipeline.NaturalPipeline`: Implementation of the Natural enhancement process using OpenCV.
-- `com.localscan.enhancement.pipeline.CleanPipeline`: Implementation of the Clean enhancement process using OpenCV.
-- `com.localscan.enhancement.OpenCvEnhancementEngine`: Implementation of `EnhancementEngine` orchestrating the pipelines.
+- `com.yscanner.enhancement.EnhancementEngine`: Interface defining the processing contract.
+- `com.yscanner.enhancement.EnhancementMode`: Enum containing `ORIGINAL`, `NATURAL`, `CLEAN`.
+- `com.yscanner.enhancement.EnhancementParameters`: Data class containing tuning values (brightness, contrast, saturation, sharpness, shadowReduction, noiseReduction).
+- `com.yscanner.enhancement.pipeline.NaturalPipeline`: Implementation of the Natural enhancement process using OpenCV.
+- `com.yscanner.enhancement.pipeline.CleanPipeline`: Implementation of the Clean enhancement process using OpenCV.
+- `com.yscanner.enhancement.OpenCvEnhancementEngine`: Implementation of `EnhancementEngine` orchestrating the pipelines.
 
 ## Data Flow
 `ImageSource` (Perspective-corrected image) + `EnhancementMode` + `EnhancementParameters` -> `EnhancementEngine` -> Processed `Bitmap`.
 
 ## Implementation Steps
 1. **Define Interfaces and Models:**
-   - Create `EnhancementMode` enum (`ORIGINAL`, `NATURAL`, `CLEAN`) in `com.localscan.enhancement`.
-   - Create `EnhancementParameters` data class in `com.localscan.enhancement`.
-   - Define `EnhancementEngine` interface in `com.localscan.enhancement`.
+   - Create `EnhancementMode` enum (`ORIGINAL`, `NATURAL`, `CLEAN`) in `com.yscanner.enhancement`.
+   - Create `EnhancementParameters` data class in `com.yscanner.enhancement`.
+   - Define `EnhancementEngine` interface in `com.yscanner.enhancement`.
 2. **Implement Original Pipeline:**
    - Create `PassThroughPipeline` that simply decodes and returns the source `Bitmap` without modifications.
 3. **Implement Natural Pipeline (`NaturalPipeline.kt`):**

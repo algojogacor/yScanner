@@ -35,10 +35,10 @@ Implement perspective correction using OpenCV to transform a cropped, skewed doc
 - Image capture pipeline providing high-resolution `Bitmap` and associated `Quadrilateral`.
 
 ## Components
-- `com.localscan.app.domain.model.Quadrilateral`: Existing data class for document corners.
-- `com.localscan.app.domain.processor.PerspectiveCorrector`: New interface for perspective correction.
-- `com.localscan.app.data.processor.OpenCvPerspectiveCorrector`: Implementation of `PerspectiveCorrector` using OpenCV.
-- `com.localscan.app.domain.usecase.ProcessSinglePageUseCase`: Use case coordinating the end-to-end pipeline.
+- `com.yscanner.app.domain.model.Quadrilateral`: Existing data class for document corners.
+- `com.yscanner.app.domain.processor.PerspectiveCorrector`: New interface for perspective correction.
+- `com.yscanner.app.data.processor.OpenCvPerspectiveCorrector`: Implementation of `PerspectiveCorrector` using OpenCV.
+- `com.yscanner.app.domain.usecase.ProcessSinglePageUseCase`: Use case coordinating the end-to-end pipeline.
 
 ## Data Flow
 1. `ProcessSinglePageUseCase` receives captured `Bitmap` and `Quadrilateral`.
@@ -50,8 +50,8 @@ Implement perspective correction using OpenCV to transform a cropped, skewed doc
 7. Disposes of intermediate OpenCV `Mat` resources.
 
 ## Implementation Steps
-1. Create `com.localscan.app.domain.processor.PerspectiveCorrector` interface with method `correctPerspective(image: Bitmap, corners: Quadrilateral): Bitmap`.
-2. Create `com.localscan.app.data.processor.OpenCvPerspectiveCorrector` implementing `PerspectiveCorrector`.
+1. Create `com.yscanner.app.domain.processor.PerspectiveCorrector` interface with method `correctPerspective(image: Bitmap, corners: Quadrilateral): Bitmap`.
+2. Create `com.yscanner.app.data.processor.OpenCvPerspectiveCorrector` implementing `PerspectiveCorrector`.
 3. In `OpenCvPerspectiveCorrector`, implement aspect ratio and dimension calculation:
    - Calculate maximum width between top/bottom edges and maximum height between left/right edges of the `Quadrilateral`.
    - Define destination coordinates using the calculated width and height.
@@ -63,7 +63,7 @@ Implement perspective correction using OpenCV to transform a cropped, skewed doc
    - Use `Imgproc.warpPerspective` with the source `Mat` and homography matrix.
    - Convert resulting `Mat` back to a new `Bitmap`.
 6. Implement strict `Mat` release lifecycle (`Mat.release()`) in `finally` blocks for all intermediate objects to prevent memory leaks.
-7. Implement `com.localscan.app.domain.usecase.ProcessSinglePageUseCase` to orchestrate capture mapping, refinement (if applicable), and perspective correction.
+7. Implement `com.yscanner.app.domain.usecase.ProcessSinglePageUseCase` to orchestrate capture mapping, refinement (if applicable), and perspective correction.
 
 ## Testing
 - `OpenCvPerspectiveCorrectorTest`: 

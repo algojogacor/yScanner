@@ -38,10 +38,10 @@ The application is feature-complete with regression testing implemented in M21.
 ## Components
 - `app/build.gradle.kts`: Release configuration, versioning, ProGuard, Signing.
 - `app/proguard-rules.pro`: Specific rules for TFLite, OpenCV, Room, Coroutines.
-- `com.localscan.core.error.ErrorHandler`: Global error handling and AI fallback routing.
-- `com.localscan.core.utils.Logger`: Privacy-compliant logging.
-- `com.localscan.camera.CameraManager`: Handling thermal throttling and permission edge cases.
-- `com.localscan.export.PdfExporter`: Handling storage full and process death.
+- `com.yscanner.core.error.ErrorHandler`: Global error handling and AI fallback routing.
+- `com.yscanner.core.utils.Logger`: Privacy-compliant logging.
+- `com.yscanner.camera.CameraManager`: Handling thermal throttling and permission edge cases.
+- `com.yscanner.export.PdfExporter`: Handling storage full and process death.
 
 ## Data Flow
 - Build System -> R8 minifier -> APK/AAB generation.
@@ -55,7 +55,7 @@ The application is feature-complete with regression testing implemented in M21.
    - Add rules for TFLite (`-keep class org.tensorflow.lite.** { *; }`).
    - Add rules for Room and Compose as needed.
 2. **Privacy & Security Audit**:
-   - Review `com.localscan.core.utils.Logger` to ensure no image byte arrays or OCR text are logged.
+   - Review `com.yscanner.core.utils.Logger` to ensure no image byte arrays or OCR text are logged.
    - Verify `AndroidManifest.xml` has no internet permission (`android.permission.INTERNET`).
    - Ensure all working directories are inside `Context.filesDir` or `Context.cacheDir`.
 3. **Error Handling & Edge Cases**:

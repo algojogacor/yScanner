@@ -39,12 +39,12 @@ Implement intelligent target selection logic to pick the best document candidate
 - M04: Geometry Engine (for `Quadrilateral` candidate generation).
 
 ## Components
-- `com.localscan.scanner.domain.model.TrackedTarget` (Data class)
-- `com.localscan.scanner.domain.model.TrackingState` (Enum)
-- `com.localscan.scanner.domain.TargetSelector` (Interface)
-- `com.localscan.scanner.domain.DefaultTargetSelector` (Implementation)
-- `com.localscan.camera.CameraManager` (Updated for focus/metering)
-- `com.localscan.scanner.ui.TapToGuideController` or similar for handling user input and triggering hit tests.
+- `com.yscanner.scanner.domain.model.TrackedTarget` (Data class)
+- `com.yscanner.scanner.domain.model.TrackingState` (Enum)
+- `com.yscanner.scanner.domain.TargetSelector` (Interface)
+- `com.yscanner.scanner.domain.DefaultTargetSelector` (Implementation)
+- `com.yscanner.camera.CameraManager` (Updated for focus/metering)
+- `com.yscanner.scanner.ui.TapToGuideController` or similar for handling user input and triggering hit tests.
 
 ## Data Flow
 1. **Camera/Preview**: User taps screen at `PointF` (preview coords).

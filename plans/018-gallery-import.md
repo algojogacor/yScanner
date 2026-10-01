@@ -33,12 +33,12 @@ The full single-page processing pipeline (document detection → geometry → pe
 - M11: Enhancement Pipeline
 
 ## Components
-- `com.localscan.core.gallery.GalleryImporter`: Interface for importing images.
-- `com.localscan.core.gallery.GalleryImporterImpl`: Implementation handling EXIF and memory-efficient loading.
-- `com.localscan.core.gallery.BitmapUtils`: Utility for downsampling and EXIF rotation.
-- `com.localscan.ui.gallery.GalleryImportViewModel`: Manages batch import state, progress, and errors.
-- `com.localscan.ui.gallery.GalleryPickerContract`: `ActivityResultContract` for the photo picker.
-- `com.localscan.core.pipeline.PipelineManager`: The existing pipeline to reuse.
+- `com.yscanner.core.gallery.GalleryImporter`: Interface for importing images.
+- `com.yscanner.core.gallery.GalleryImporterImpl`: Implementation handling EXIF and memory-efficient loading.
+- `com.yscanner.core.gallery.BitmapUtils`: Utility for downsampling and EXIF rotation.
+- `com.yscanner.ui.gallery.GalleryImportViewModel`: Manages batch import state, progress, and errors.
+- `com.yscanner.ui.gallery.GalleryPickerContract`: `ActivityResultContract` for the photo picker.
+- `com.yscanner.core.pipeline.PipelineManager`: The existing pipeline to reuse.
 
 ## Data Flow
 1. User selects `List<Uri>` via system photo picker.
@@ -50,7 +50,7 @@ The full single-page processing pipeline (document detection → geometry → pe
 7. A `PageObject` is generated and added to `PageManager`.
 
 ## Implementation Steps
-1. Create `com.localscan.core.gallery.GalleryImporter` interface and `GalleryImporterImpl`.
+1. Create `com.yscanner.core.gallery.GalleryImporter` interface and `GalleryImporterImpl`.
 2. Implement memory-efficient bitmap loading with EXIF rotation correction in `BitmapUtils.decodeWithExif()`. Ensure it handles JPEG, PNG, and HEIF.
 3. Implement `GalleryPickerContract` to launch `PickVisualMediaRequest(ActivityResultContracts.PickMultipleVisualMedia())`.
 4. Create `GalleryImportViewModel` to coordinate batch processing, tracking total vs. completed items and reporting progress per image.

@@ -1,10 +1,10 @@
 AGENTS.md
 
-# LocalScan — Agent Operating Rules
+# yScanner — Agent Operating Rules
 
 ## 0. PURPOSE
 
-This file defines how an AI coding agent must behave while working on the LocalScan repository.
+This file defines how an AI coding agent must behave while working on the yScanner repository.
 
 `PRD.md` is the primary product and technical requirements document.
 

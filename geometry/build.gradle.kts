@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.geometry"
+    namespace = "com.yscanner.geometry"
     compileSdk = 35
 
     defaultConfig {

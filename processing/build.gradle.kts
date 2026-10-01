@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.processing"
+    namespace = "com.yscanner.processing"
     compileSdk = 35
 
     defaultConfig {

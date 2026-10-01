@@ -37,12 +37,12 @@ The repository has an initialized multi-module Gradle structure with an empty `:
 - Jetpack Compose for UI.
 
 ## Components
-- `com.localscan.camera.CameraController`: Interface and `CameraXControllerImpl` implementation coordinating use cases.
-- `com.localscan.camera.FrameAnalyzer`: Interface for processing `ImageProxy` objects.
-- `com.localscan.camera.CaptureManager`: Interface for managing high-res file-backed capture.
-- `com.localscan.camera.executor.CameraExecutor`: Dedicated thread executor for image analysis to prevent blocking the main thread.
-- `com.localscan.app.ui.camera.CameraScreen`: Compose UI tying together the preview, shutter, and flash controls.
-- `com.localscan.app.ui.camera.CameraPreview`: Compose wrapper for `PreviewView`.
+- `com.yscanner.camera.CameraController`: Interface and `CameraXControllerImpl` implementation coordinating use cases.
+- `com.yscanner.camera.FrameAnalyzer`: Interface for processing `ImageProxy` objects.
+- `com.yscanner.camera.CaptureManager`: Interface for managing high-res file-backed capture.
+- `com.yscanner.camera.executor.CameraExecutor`: Dedicated thread executor for image analysis to prevent blocking the main thread.
+- `com.yscanner.app.ui.camera.CameraScreen`: Compose UI tying together the preview, shutter, and flash controls.
+- `com.yscanner.app.ui.camera.CameraPreview`: Compose wrapper for `PreviewView`.
 
 ## Data Flow
 1. **Preview**: Camera2 → `Preview` use case → `PreviewView` (UI).
@@ -51,31 +51,31 @@ The repository has an initialized multi-module Gradle structure with an empty `:
 
 ## Implementation Steps
 1. Add CameraX dependencies (`camera-core`, `camera-camera2`, `camera-lifecycle`, `camera-view`) to `d:\Projects\pdfscanner\camera\build.gradle.kts`.
-2. Define `com.localscan.camera.FrameAnalyzer`, `CaptureManager`, and `CameraController` interfaces in the `:camera` module.
-3. Implement `com.localscan.camera.CameraXControllerImpl` extending `CameraController`:
+2. Define `com.yscanner.camera.FrameAnalyzer`, `CaptureManager`, and `CameraController` interfaces in the `:camera` module.
+3. Implement `com.yscanner.camera.CameraXControllerImpl` extending `CameraController`:
    - Initialize `ProcessCameraProvider`.
    - Bind `Preview`, `ImageAnalysis`, and `ImageCapture` to the provided `LifecycleOwner`.
    - Configure `ImageAnalysis` with `STRATEGY_KEEP_ONLY_LATEST` and a dedicated single-thread `Executor`.
    - Implement tap-to-focus using `MeteringPointFactory` and `FocusMeteringAction`.
    - Expose flash mode state (Off, On, Torch) and implement switching logic via `CameraControl.enableTorch()` and `ImageCapture.setFlashMode()`.
-4. Implement `com.localscan.camera.FileCaptureManager` extending `CaptureManager`:
+4. Implement `com.yscanner.camera.FileCaptureManager` extending `CaptureManager`:
    - Use `ImageCapture.takePicture(OutputFileOptions, Executor, OnImageSavedCallback)`.
    - Write output to a temporary file.
    - Return `CaptureResult(file, rotationDegrees)` via Kotlin Coroutines (`suspendCancellableCoroutine`).
-5. Create `com.localscan.app.ui.camera.CameraPreview` in `:app`:
+5. Create `com.yscanner.app.ui.camera.CameraPreview` in `:app`:
    - Use `AndroidView` to wrap `androidx.camera.view.PreviewView`.
    - Attach the `Preview` use case surface provider.
-6. Create `com.localscan.app.ui.camera.CameraScreen` in `:app`:
+6. Create `com.yscanner.app.ui.camera.CameraScreen` in `:app`:
    - Request `android.permission.CAMERA`.
    - Render `CameraPreview`.
    - Overlay a Shutter `IconButton`.
    - Overlay a Flash toggle `IconButton`.
-7. Wire `CameraScreen` to an empty `com.localscan.app.MainActivity` for demonstration.
+7. Wire `CameraScreen` to an empty `com.yscanner.app.MainActivity` for demonstration.
 
 ## Testing
-- `com.localscan.camera.CameraXControllerTest`: Verify lifecycle binding, use case configuration, and flash mode toggling.
-- `com.localscan.camera.FileCaptureManagerTest`: Mock `ImageCapture` and verify file creation and rotation metadata handling.
-- `com.localscan.app.ui.camera.CameraScreenTest`: Compose UI tests verifying permission request flow and UI component rendering (shutter, flash buttons).
+- `com.yscanner.camera.CameraXControllerTest`: Verify lifecycle binding, use case configuration, and flash mode toggling.
+- `com.yscanner.camera.FileCaptureManagerTest`: Mock `ImageCapture` and verify file creation and rotation metadata handling.
+- `com.yscanner.app.ui.camera.CameraScreenTest`: Compose UI tests verifying permission request flow and UI component rendering (shutter, flash buttons).
 
 ## Validation
 - Verify camera preview renders correctly in portrait and landscape orientations.

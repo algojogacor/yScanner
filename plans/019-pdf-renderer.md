@@ -29,13 +29,13 @@ The project currently has only a default Android scaffold with a single `:app` m
 - Document model and PageObjects (M12).
 
 ## Components
-- `com.localscan.export.PdfRenderer`: Interface for rendering PDF.
-- `com.localscan.export.PdfRendererImpl`: Implementation using `android.graphics.pdf.PdfDocument`.
-- `com.localscan.export.PdfOptions`: Data class holding export options.
-- `com.localscan.export.PdfPageSize`: Enum (A4, AUTO, A5, B5, LETTER, ORIGINAL_RATIO).
-- `com.localscan.export.PdfQuality`: Enum (HIGH, BALANCED, SMALL).
-- `com.localscan.export.PdfResult`: Data class for result details.
-- `com.localscan.export.PdfLayoutEngine`: Utility for calculating page dimensions and image bounds.
+- `com.yscanner.export.PdfRenderer`: Interface for rendering PDF.
+- `com.yscanner.export.PdfRendererImpl`: Implementation using `android.graphics.pdf.PdfDocument`.
+- `com.yscanner.export.PdfOptions`: Data class holding export options.
+- `com.yscanner.export.PdfPageSize`: Enum (A4, AUTO, A5, B5, LETTER, ORIGINAL_RATIO).
+- `com.yscanner.export.PdfQuality`: Enum (HIGH, BALANCED, SMALL).
+- `com.yscanner.export.PdfResult`: Data class for result details.
+- `com.yscanner.export.PdfLayoutEngine`: Utility for calculating page dimensions and image bounds.
 
 ## Data Flow
 1. Caller invokes `PdfRenderer.render(document, options, outputPath, progressCallback)`.
@@ -51,7 +51,7 @@ The project currently has only a default Android scaffold with a single `:app` m
 5. Return `PdfResult`.
 
 ## Implementation Steps
-1. Create `com.localscan.export` package.
+1. Create `com.yscanner.export` package.
 2. Create `PdfPageSize.kt` (A4, AUTO, A5, B5, LETTER, ORIGINAL_RATIO) and `PdfQuality.kt` (HIGH, BALANCED, SMALL).
 3. Create `PdfOptions.kt` and `PdfResult.kt` data classes.
 4. Create `PdfRenderer.kt` interface.

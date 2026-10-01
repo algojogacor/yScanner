@@ -35,22 +35,22 @@ Perspective-corrected document images are produced from M09. The repository cont
 - OpenCV integration for Laplacian, histogram, and thresholding operations.
 
 ## Components
-- `com.localscan.core.quality.QualityMetrics`: Data class holding all individual scores and the overall composite score.
-- `com.localscan.core.quality.QualityAssessor`: Interface defining `assessLive(ImageProxy)` and `assessDetailed(Bitmap/Mat, Quadrilateral)`.
-- `com.localscan.core.quality.impl.OpenCVQualityAssessor`: Main implementation using OpenCV.
-- `com.localscan.core.quality.estimators.BlurEstimator`: OpenCV Laplacian variance implementation.
-- `com.localscan.core.quality.estimators.ExposureEstimator`: Histogram-based implementation.
-- `com.localscan.core.quality.estimators.GlareEstimator`: Thresholding and highlight region analysis.
-- `com.localscan.core.quality.estimators.ShadowEstimator`: Local brightness variation detection.
-- `com.localscan.core.quality.estimators.GeometryEstimator`: Quadrilateral regularity and edge gradient strength.
+- `com.yscanner.core.quality.QualityMetrics`: Data class holding all individual scores and the overall composite score.
+- `com.yscanner.core.quality.QualityAssessor`: Interface defining `assessLive(ImageProxy)` and `assessDetailed(Bitmap/Mat, Quadrilateral)`.
+- `com.yscanner.core.quality.impl.OpenCVQualityAssessor`: Main implementation using OpenCV.
+- `com.yscanner.core.quality.estimators.BlurEstimator`: OpenCV Laplacian variance implementation.
+- `com.yscanner.core.quality.estimators.ExposureEstimator`: Histogram-based implementation.
+- `com.yscanner.core.quality.estimators.GlareEstimator`: Thresholding and highlight region analysis.
+- `com.yscanner.core.quality.estimators.ShadowEstimator`: Local brightness variation detection.
+- `com.yscanner.core.quality.estimators.GeometryEstimator`: Quadrilateral regularity and edge gradient strength.
 
 ## Data Flow
 1. **Live (Auto-Capture Readiness):** CameraX `ImageProxy` → Downscaled → `QualityAssessor.assessLive()` → (skips heavy estimators) → `QualityMetrics` → Auto Capture State Machine (updates UI countdown/readiness).
 2. **Post-capture:** Captured high-res `Bitmap` (or `Mat`) + detected `Quadrilateral` → `QualityAssessor.assessDetailed()` → `QualityMetrics` → Attached to document metadata for diagnostic storage and pipeline benchmarking.
 
 ## Implementation Steps
-1. Create `com.localscan.core.quality.QualityMetrics` with float fields: `blurScore`, `glareScore`, `shadowScore`, `exposureScore`, `geometryScore`, `cropConfidence`, `cornerConfidence`, and `overallScore`.
-2. Create `com.localscan.core.quality.QualityAssessor` interface with `assessLive` and `assessDetailed` methods.
+1. Create `com.yscanner.core.quality.QualityMetrics` with float fields: `blurScore`, `glareScore`, `shadowScore`, `exposureScore`, `geometryScore`, `cropConfidence`, `cornerConfidence`, and `overallScore`.
+2. Create `com.yscanner.core.quality.QualityAssessor` interface with `assessLive` and `assessDetailed` methods.
 3. Implement `BlurEstimator` using `Imgproc.Laplacian` and variance calculation.
 4. Implement `ExposureEstimator` using `Imgproc.calcHist` to evaluate under/over-exposure.
 5. Implement `GlareEstimator` and `ShadowEstimator` to analyze localized highlight/shadow clusters.

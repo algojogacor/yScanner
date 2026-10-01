@@ -32,13 +32,13 @@ The app (from M05) selects a `TrackedTarget` from raw contour candidates, but ou
 - Spike S03: Temporal Filter Comparison (determines the exact filter math used).
 
 ## Components
-- `com.localscan.camera.tracking.TemporalTracker` (Interface)
-- `com.localscan.camera.tracking.SmoothedTarget` (Data class)
-- `com.localscan.camera.tracking.TrackingState` (Enum)
-- `com.localscan.camera.tracking.filters.CornerFilter` (Math implementation, e.g., `OneEuroFilter`)
-- `com.localscan.camera.ui.DocumentOverlay` (Compose `@Composable`)
-- `com.localscan.camera.utils.CoordinateMapper` (Maps ML coordinates to UI coordinates)
-- `com.localscan.camera.utils.JitterMetrics` (Utility)
+- `com.yscanner.camera.tracking.TemporalTracker` (Interface)
+- `com.yscanner.camera.tracking.SmoothedTarget` (Data class)
+- `com.yscanner.camera.tracking.TrackingState` (Enum)
+- `com.yscanner.camera.tracking.filters.CornerFilter` (Math implementation, e.g., `OneEuroFilter`)
+- `com.yscanner.camera.ui.DocumentOverlay` (Compose `@Composable`)
+- `com.yscanner.camera.utils.CoordinateMapper` (Maps ML coordinates to UI coordinates)
+- `com.yscanner.camera.utils.JitterMetrics` (Utility)
 
 ## Data Flow
 1. `TargetSelector` emits `TrackedTarget?` (or `null` if no valid candidate).

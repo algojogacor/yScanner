@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.app"
+    namespace = "com.yscanner.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.localscan.app"
+        applicationId = "com.yscanner.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

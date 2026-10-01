@@ -3,4 +3,4 @@
 -keep @androidx.room.Entity class * { *; }
 -keep @androidx.room.Dao interface * { *; }
 -keep class * implements androidx.room.TypeConverter
--keep class com.localscan.data.** { *; }
+-keep class com.yscanner.data.** { *; }

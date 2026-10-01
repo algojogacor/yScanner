@@ -128,3 +128,85 @@ Gate 1 raised 3 edge-case issues — all fixed:
 
 ### Next
 - M03 — Document Detector (requires S01 model selection spike)
+
+---
+
+## 2026-10-01 — Namespace Migration: com.localscan → com.yscanner
+
+### Objective
+
+Eliminate the legacy `LocalScan` identity from the codebase. The product is **yScanner**; the
+package namespace, application ID, and all code-level identifiers still carried the old name.
+Per explicit direction, perform the migration thoroughly now, while the project is still early-stage.
+
+### Changes
+
+**Package namespace**
+- All 16 `src/{main,test}/kotlin/com/localscan/**` directories moved to `com/yscanner/**` via `git mv`
+  (history preserved — 61 files detected as renames by Git).
+- `com.localscan` → `com.yscanner` in every Kotlin package declaration, import, and fully-qualified reference.
+
+**Build configuration**
+- Gradle `namespace` updated in all 11 modules.
+- `applicationId`: `com.localscan.app` → `com.yscanner.app`.
+- Proguard rules (`app/proguard-rules.pro`) and consumer rules (10 × `consumer-rules.pro`) updated.
+
+**Android components**
+- `AndroidManifest.xml`: `android:name=".LocalScanApplication"` → `".YScannerApplication"`.
+- `LocalScanApplication.kt` → `YScannerApplication.kt` (file renamed, class renamed).
+- `LocalScanTheme` → `YScannerTheme`.
+- Product-name references in code comments → `yScanner`.
+
+**Data**
+- `ScanDatabase.DATABASE_NAME`: `"localscan_database.db"` → `"yscanner_database.db"`.
+  Safe: no released build, so no migration path is required.
+
+**Documentation**
+- Contract docs (`PRD.md`, `ARCHITECTURE.md`, `AGENTS.md`, `BRIEF.md`) and all 24 `plans/*.md` updated
+  so the living specs stay consistent with the code. Also corrected a stale path in
+  `plans/001` (`src/main/java` → `src/main/kotlin`).
+- `WORKLOG.md` historical entries intentionally left untouched (this file is the historical journal).
+
+### Validation
+
+- `./gradlew clean test assembleDebug` → **BUILD SUCCESSFUL** in 2m40s
+  (469 tasks: 298 executed, 139 from cache, 32 up-to-date).
+- Unit tests: **117 unique tests, 0 failures, 0 errors**
+  (62 pure-JVM in `:common`/`:domain`, 55 per Android variant).
+- Debug APK produced: `app/build/outputs/apk/debug/app-debug.apk`.
+- Post-migration grep asserts **zero** occurrences of `localscan` (case-insensitive) in any tracked
+  file except `WORKLOG.md`.
+
+### Results
+
+- `git diff --stat`: 108 files changed, **386 insertions / 386 deletions** — exactly symmetric,
+  confirming a pure rename with no semantic change.
+- Repository identity is now uniformly yScanner.
+
+### Decisions
+
+1. **Full migration over partial.** A half-renamed repo is worse than either extreme; the project is
+   pre-release, so the cost is at its minimum now.
+2. **Contract docs included.** `PRD.md` / `ARCHITECTURE.md` / `AGENTS.md` / `BRIEF.md` are living
+   specifications, not historical records. Leaving them naming a different product would actively
+   mislead the remaining milestones. Only `WORKLOG.md` is treated as immutable history.
+3. **`plans/` included.** These are actionable forward-looking specs that M03+ will be implemented
+   against; stale package names there would be a defect, not a historical record.
+
+### Problems
+
+- `local.properties` was **absent** from the working tree, so no build could run. Recreated with
+  `sdk.dir=D:\Android\Sdk` (gitignored — no repository impact).
+- The Gradle daemon cannot write `~/.gradle/caches/journal-1` when the tool sandbox is active;
+  builds require the sandbox to be lifted for the Gradle invocation.
+
+### Next
+
+- Spike **S01 (model selection)**: gather pretrained-candidate evidence and **stop at the decision
+  gate** for human selection. No final model may be locked in autonomously.
+- Build the model-independent parts of M03 (`SegmentationModel` interface, detector abstraction,
+  preprocessing/postprocessing abstraction, fixtures, benchmark harness).
+
+### Commit
+
+`refactor(naming): migrate namespace and identity from LocalScan to yScanner`

@@ -29,12 +29,12 @@ The repository currently supports single-page geometry and perspective correctio
 - M09: Perspective Correction (basic OpenCV pipelines and geometry utilities).
 
 ## Components
-- `com.localscan.core.geometry.SpreadAnalysis`: Data class containing `isSpread`, `gutterLine`, `leftPageBoundary`, `rightPageBoundary`, `curvatureMap`.
-- `com.localscan.core.geometry.GutterLine`: Data class defining `top` point, `bottom` point, and `curvature` profile.
-- `com.localscan.core.geometry.SpreadAnalyzer`: Interface defining `fun analyze(image: ImageSource): SpreadAnalysis`.
-- `com.localscan.core.geometry.BookSpreadDetector`: Detects open book spreads vs. flat single pages.
-- `com.localscan.core.geometry.PageBoundaryDetector`: Finds distinct left and right page polygons.
-- `com.localscan.core.geometry.DefaultSpreadAnalyzer`: Implementation orchestrating the pipeline.
+- `com.yscanner.core.geometry.SpreadAnalysis`: Data class containing `isSpread`, `gutterLine`, `leftPageBoundary`, `rightPageBoundary`, `curvatureMap`.
+- `com.yscanner.core.geometry.GutterLine`: Data class defining `top` point, `bottom` point, and `curvature` profile.
+- `com.yscanner.core.geometry.SpreadAnalyzer`: Interface defining `fun analyze(image: ImageSource): SpreadAnalysis`.
+- `com.yscanner.core.geometry.BookSpreadDetector`: Detects open book spreads vs. flat single pages.
+- `com.yscanner.core.geometry.PageBoundaryDetector`: Finds distinct left and right page polygons.
+- `com.yscanner.core.geometry.DefaultSpreadAnalyzer`: Implementation orchestrating the pipeline.
 
 ## Data Flow
 1. `ImageSource` arrives from capture.
@@ -45,7 +45,7 @@ The repository currently supports single-page geometry and perspective correctio
 6. The output feeds downstream to M16 (Dewarping).
 
 ## Implementation Steps
-1. Create `SpreadAnalysis.kt` and `GutterLine.kt` in `com.localscan.core.geometry`.
+1. Create `SpreadAnalysis.kt` and `GutterLine.kt` in `com.yscanner.core.geometry`.
 2. Define the `SpreadAnalyzer.kt` interface.
 3. Implement `BookSpreadDetector.kt` using OpenCV to identify dual large contour regions and central valley shadows.
 4. Implement `PageBoundaryDetector.kt` to extract independent left and right quadrilaterals/polygons.

@@ -34,8 +34,8 @@ The repository contains only documentation files (PRD.md, BRIEF.md, ARCHITECTURE
 *   `build.gradle.kts` (root)
 *   `gradle/libs.versions.toml`
 *   `app/build.gradle.kts`
-*   `app/src/main/java/com/localscan/app/LocalScanApplication.kt`
-*   `app/src/main/java/com/localscan/app/MainActivity.kt`
+*   `app/src/main/kotlin/com/yscanner/app/YScannerApplication.kt`
+*   `app/src/main/kotlin/com/yscanner/app/MainActivity.kt`
 *   Module shells (`camera`, `detection`, `geometry`, `processing`, `domain`, `data`, `pdf`, `import`, `common`, `test-fixtures`) with their respective `build.gradle.kts` files.
 
 ## Data Flow
@@ -58,7 +58,7 @@ N/A (No functional data flow in this milestone).
     *   `:test-fixtures` (Android Library)
 5.  **Settings Configuration:** Include all created modules in `settings.gradle.kts`.
 6.  **App Module Setup:** Create `:app` module (Android Application). Configure dependencies on all other modules.
-7.  **Basic Code:** Create `LocalScanApplication.kt` and `MainActivity.kt` in `:app`.
+7.  **Basic Code:** Create `YScannerApplication.kt` and `MainActivity.kt` in `:app`.
 8.  **ProGuard:** Add basic ProGuard rules to `app/proguard-rules.pro`.
 
 ## Testing

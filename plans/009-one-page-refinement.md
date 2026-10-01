@@ -30,9 +30,9 @@ The camera successfully captures high-resolution images (M07), and initial docum
 - M02 (Document Detection Engine) - base geometry and mapping.
 
 ## Components
-- `com.localscan.domain.image.ImageSource` (Interface)
-- `com.localscan.data.image.FileImageSource` (Implementation of `ImageSource`)
-- `com.localscan.domain.geometry.CornerRefiner` (Domain service)
+- `com.yscanner.domain.image.ImageSource` (Interface)
+- `com.yscanner.data.image.FileImageSource` (Implementation of `ImageSource`)
+- `com.yscanner.domain.geometry.CornerRefiner` (Domain service)
 - OpenCV Android SDK (`Imgproc`, `Core` modules)
 
 ## Data Flow
@@ -45,8 +45,8 @@ The camera successfully captures high-resolution images (M07), and initial docum
 7. A final refined `Quadrilateral` is returned.
 
 ## Implementation Steps
-1. **Define `ImageSource` Interface:** Create `com.localscan.domain.image.ImageSource` defining `width`, `height`, `decodeRegion(Rect)`, `decodeFull()`, and `release()`.
-2. **Implement `FileImageSource`:** Create `com.localscan.data.image.FileImageSource` using `BitmapRegionDecoder`. Ensure thread-safety and proper resource release.
+1. **Define `ImageSource` Interface:** Create `com.yscanner.domain.image.ImageSource` defining `width`, `height`, `decodeRegion(Rect)`, `decodeFull()`, and `release()`.
+2. **Implement `FileImageSource`:** Create `com.yscanner.data.image.FileImageSource` using `BitmapRegionDecoder`. Ensure thread-safety and proper resource release.
 3. **Implement ROI Calculation:** In `CornerRefiner`, create a method to calculate `Rect` bounds for a given `Point`, ensuring it handles image boundary constraints (clamping to `0` and `width/height`).
 4. **Implement ROI Edge Detection:** In `CornerRefiner`, convert the ROI `Bitmap` to an OpenCV `Mat`, apply grayscale conversion, Gaussian blur, and Canny edge detection.
 5. **Implement Corner Localization:** Use Hough Transform or contour approximation to find the two dominant intersecting lines within the ROI, calculating the intersection point.

@@ -1,1 +1,1 @@
--keep class com.localscan.testing.** { *; }
+-keep class com.yscanner.testing.** { *; }

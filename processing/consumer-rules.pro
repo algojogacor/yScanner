@@ -1,2 +1,2 @@
 -keep class org.opencv.** { *; }
--keep class com.localscan.processing.** { *; }
+-keep class com.yscanner.processing.** { *; }

@@ -39,11 +39,11 @@ Implement curvature estimation and image dewarping for book spreads to flatten c
 - Spike S04 (Dewarp Strategy) must be completed to finalize the dewarping algorithm selection.
 
 ## Components
-- `com.localscan.core.models.CurvatureMap`
-- `com.localscan.core.processor.Dewarper` (Interface)
-- `com.localscan.core.processor.OpenCvDewarper` (Implementation)
-- `com.localscan.core.processor.CurvatureEstimator`
-- `com.localscan.core.processor.TwoPagePipeline` (Updates)
+- `com.yscanner.core.models.CurvatureMap`
+- `com.yscanner.core.processor.Dewarper` (Interface)
+- `com.yscanner.core.processor.OpenCvDewarper` (Implementation)
+- `com.yscanner.core.processor.CurvatureEstimator`
+- `com.yscanner.core.processor.TwoPagePipeline` (Updates)
 
 ## Data Flow
 1. `ImageSource` (spread) + `pageBoundary` (left/right) + `gutterLine` -> `CurvatureEstimator` -> `CurvatureMap` (left), `CurvatureMap` (right).
@@ -53,13 +53,13 @@ Implement curvature estimation and image dewarping for book spreads to flatten c
 5. Dewarped right -> perspective correction -> enhancement -> `PageObject` (Right).
 
 ## Implementation Steps
-1. Create `com.localscan.core.models.CurvatureMap` data class with properties `meshWidth`, `meshHeight`, and `controlPoints: FloatArray`.
-2. Define the `com.localscan.core.processor.Dewarper` interface with a `dewarp` method taking an `ImageSource`, page boundary polygon, `CurvatureMap`, and gutter line, returning a dewarped `Bitmap`.
-3. Implement `com.localscan.core.processor.CurvatureEstimator` that processes the page boundary and spread content to output a `CurvatureMap`. Handle left and right pages with independent geometry.
-4. Implement `com.localscan.core.processor.OpenCvDewarper` that:
+1. Create `com.yscanner.core.models.CurvatureMap` data class with properties `meshWidth`, `meshHeight`, and `controlPoints: FloatArray`.
+2. Define the `com.yscanner.core.processor.Dewarper` interface with a `dewarp` method taking an `ImageSource`, page boundary polygon, `CurvatureMap`, and gutter line, returning a dewarped `Bitmap`.
+3. Implement `com.yscanner.core.processor.CurvatureEstimator` that processes the page boundary and spread content to output a `CurvatureMap`. Handle left and right pages with independent geometry.
+4. Implement `com.yscanner.core.processor.OpenCvDewarper` that:
    - Generates X and Y mapping matrices based on the `CurvatureMap`.
    - Uses OpenCV's `Imgproc.remap()` to perform non-linear dewarping.
-5. Update `com.localscan.core.processor.TwoPagePipeline` to orchestrate the new flow:
+5. Update `com.yscanner.core.processor.TwoPagePipeline` to orchestrate the new flow:
    - Detect spread, boundaries, gutter.
    - Estimate curvature for left and right pages.
    - Dewarp left page, then dewarp right page.

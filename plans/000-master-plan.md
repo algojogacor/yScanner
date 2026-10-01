@@ -1,8 +1,8 @@
-# LocalScan — Master Implementation Plan
+# yScanner — Master Implementation Plan
 
 > **For agentic workers:** Each milestone has a dedicated plan file in this directory. Execute milestones sequentially unless the dependency graph allows parallel work. Always verify the previous milestone's acceptance criteria before starting the next.
 
-**Goal:** Transform the LocalScan project contract (PRD.md, BRIEF.md, ARCHITECTURE.md, AGENTS.md) into a fully implemented Android document scanner application.
+**Goal:** Transform the yScanner project contract (PRD.md, BRIEF.md, ARCHITECTURE.md, AGENTS.md) into a fully implemented Android document scanner application.
 
 **Architecture:** Multi-module Android project with clean separation: camera acquisition → ML detection → geometry engine → image processing → domain model → persistence → PDF export. All processing on-device, no cloud dependency.
 
@@ -12,7 +12,7 @@
 
 ## 1. Project Objective
 
-Build LocalScan: a native Android document scanner that:
+Build yScanner: a native Android document scanner that:
 
 1. Detects documents in real-time using on-device AI segmentation
 2. Tracks and stabilizes detected documents temporally

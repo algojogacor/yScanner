@@ -32,12 +32,12 @@ The domain model (`PageObject`, `Document`) exists from M12. The underlying imag
 - M12: Domain Model & Processing Pipeline completion.
 
 ## Components
-- `com.localscan.app.ui.pagemanager.PageManagerScreen` (Compose screen)
-- `com.localscan.app.ui.pagemanager.PageManagerViewModel` (State holder)
-- `com.localscan.app.ui.editor.ManualCropScreen` (Compose screen for 4-corner crop)
-- `com.localscan.app.domain.model.PageOperation` (sealed class for undo/redo commands)
-- `com.localscan.app.domain.editor.EditSession` (Undo/redo manager)
-- `com.localscan.app.domain.editor.GeometryTransformer` (Re-applies perspective transform)
+- `com.yscanner.app.ui.pagemanager.PageManagerScreen` (Compose screen)
+- `com.yscanner.app.ui.pagemanager.PageManagerViewModel` (State holder)
+- `com.yscanner.app.ui.editor.ManualCropScreen` (Compose screen for 4-corner crop)
+- `com.yscanner.app.domain.model.PageOperation` (sealed class for undo/redo commands)
+- `com.yscanner.app.domain.editor.EditSession` (Undo/redo manager)
+- `com.yscanner.app.domain.editor.GeometryTransformer` (Re-applies perspective transform)
 
 ## Data Flow
 1. User captures images in Camera screen -> `PageObject`s added to `Document`.

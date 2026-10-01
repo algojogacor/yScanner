@@ -31,11 +31,11 @@ No domain models for PageObject or Document exist. Processing pipeline exists bu
 
 ## Components
 Module: `:domain` (pure Kotlin, no Android framework dependencies)
-- `com.localscan.domain.model.PageObject`
-- `com.localscan.domain.model.Document`
-- `com.localscan.domain.model.PageGeometry` (Sealed class: `SinglePageGeometry`, `TwoPageGeometry`, `ManualCropGeometry`)
-- `com.localscan.domain.model.enums.*` (`ScanMode`, `CaptureMethod`, `SourceType`, `EnhancementMode`, `ProcessingState`)
-- `com.localscan.domain.repository.DocumentRepository` (interface)
+- `com.yscanner.domain.model.PageObject`
+- `com.yscanner.domain.model.Document`
+- `com.yscanner.domain.model.PageGeometry` (Sealed class: `SinglePageGeometry`, `TwoPageGeometry`, `ManualCropGeometry`)
+- `com.yscanner.domain.model.enums.*` (`ScanMode`, `CaptureMethod`, `SourceType`, `EnhancementMode`, `ProcessingState`)
+- `com.yscanner.domain.repository.DocumentRepository` (interface)
 
 ## Data Flow
 Domain Model Instantiation -> Use Cases -> Repository Interfaces (to be implemented by data layer). 
@@ -43,15 +43,15 @@ Key pipeline invariant: PageObject + Source Asset -> Non-destructive render.
 
 ## Implementation Steps
 1. Create `:domain` module in `d:\Projects\pdfscanner\domain` with pure Kotlin Gradle configuration.
-2. Create `com.localscan.domain.model.enums` package: Define `ScanMode` (ONE_PAGE, TWO_PAGE), `CaptureMethod` (AUTO, MANUAL), `SourceType` (CAMERA, GALLERY), `ProcessingState` (PENDING, PROCESSING, COMPLETED, FAILED), `EnhancementMode` (ORIGINAL, NATURAL, CLEAN).
-3. Create `com.localscan.domain.model.PageGeometry.kt`: Define sealed class `PageGeometry` and data classes `SinglePageGeometry`, `TwoPageGeometry` (left/right), `ManualCropGeometry` with properties: originalQuadrilateral, refinedQuadrilateral, outputSize, sourceImageSize.
-4. Create `com.localscan.domain.model.PageObject.kt`: Define `PageObject` data class: id, documentId, sourceAssetPath, geometry, rotation (0, 90, 180, 270), enhancementMode, enhancementParameters, qualityMetrics, metadata (timestamp, scanMode, captureMethod, sourceType), processingState.
-5. Create `com.localscan.domain.model.Document.kt`: Define `Document` data class: id, name, createdAt, modifiedAt, pages: List<PageObject>, pageCount.
-6. Create `com.localscan.domain.repository.DocumentRepository.kt`: Define interface for CRUD operations (create, get, update, delete).
+2. Create `com.yscanner.domain.model.enums` package: Define `ScanMode` (ONE_PAGE, TWO_PAGE), `CaptureMethod` (AUTO, MANUAL), `SourceType` (CAMERA, GALLERY), `ProcessingState` (PENDING, PROCESSING, COMPLETED, FAILED), `EnhancementMode` (ORIGINAL, NATURAL, CLEAN).
+3. Create `com.yscanner.domain.model.PageGeometry.kt`: Define sealed class `PageGeometry` and data classes `SinglePageGeometry`, `TwoPageGeometry` (left/right), `ManualCropGeometry` with properties: originalQuadrilateral, refinedQuadrilateral, outputSize, sourceImageSize.
+4. Create `com.yscanner.domain.model.PageObject.kt`: Define `PageObject` data class: id, documentId, sourceAssetPath, geometry, rotation (0, 90, 180, 270), enhancementMode, enhancementParameters, qualityMetrics, metadata (timestamp, scanMode, captureMethod, sourceType), processingState.
+5. Create `com.yscanner.domain.model.Document.kt`: Define `Document` data class: id, name, createdAt, modifiedAt, pages: List<PageObject>, pageCount.
+6. Create `com.yscanner.domain.repository.DocumentRepository.kt`: Define interface for CRUD operations (create, get, update, delete).
 
 ## Testing
-- `com.localscan.domain.model.PageObjectTest`: Verify initialization, immutability, and data integrity.
-- `com.localscan.domain.model.DocumentTest`: Verify page list management, count consistency, and immutability.
+- `com.yscanner.domain.model.PageObjectTest`: Verify initialization, immutability, and data integrity.
+- `com.yscanner.domain.model.DocumentTest`: Verify page list management, count consistency, and immutability.
 
 ## Validation
 - Ensure `:domain` module compiles with no Android dependencies (`import android.*` should result in compilation error).

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.imageimport"
+    namespace = "com.yscanner.imageimport"
     compileSdk = 35
 
     defaultConfig {

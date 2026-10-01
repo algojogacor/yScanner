@@ -30,22 +30,22 @@ The `:geometry` module exists but is empty. The detection module produces `List<
 - Spike S02: Quadrilateral Fitting (algorithm selection).
 
 ## Components
-- `com.localscan.geometry.models.Quadrilateral`
-- `com.localscan.geometry.interfaces.BoundaryExtractor`
-- `com.localscan.geometry.interfaces.EnvelopeComputer`
-- `com.localscan.geometry.interfaces.QuadrilateralFitter`
-- `com.localscan.geometry.interfaces.CornerRefiner`
-- `com.localscan.geometry.impl.OpenCvBoundaryExtractor`
-- `com.localscan.geometry.impl.OpenCvEnvelopeComputer`
-- `com.localscan.geometry.impl.StandardQuadrilateralFitter`
-- `com.localscan.geometry.impl.StubCornerRefiner`
+- `com.yscanner.geometry.models.Quadrilateral`
+- `com.yscanner.geometry.interfaces.BoundaryExtractor`
+- `com.yscanner.geometry.interfaces.EnvelopeComputer`
+- `com.yscanner.geometry.interfaces.QuadrilateralFitter`
+- `com.yscanner.geometry.interfaces.CornerRefiner`
+- `com.yscanner.geometry.impl.OpenCvBoundaryExtractor`
+- `com.yscanner.geometry.impl.OpenCvEnvelopeComputer`
+- `com.yscanner.geometry.impl.StandardQuadrilateralFitter`
+- `com.yscanner.geometry.impl.StubCornerRefiner`
 
 ## Data Flow
 Segmentation Mask (from M03) -> `BoundaryExtractor` -> Boundary Points (`List<PointF>`) -> `EnvelopeComputer` -> Convex Outer Envelope (`List<PointF>`) -> `QuadrilateralFitter` -> `Quadrilateral`.
 
 ## Implementation Steps
-1. Create `com.localscan.geometry.models.Quadrilateral` data class with properties `topLeft`, `topRight`, `bottomRight`, `bottomLeft` and methods `area()`, `isConvex()`, `contains()`, `toFloatArray()`.
-2. Define interfaces: `BoundaryExtractor`, `EnvelopeComputer`, `QuadrilateralFitter`, `CornerRefiner` in `com.localscan.geometry.interfaces`.
+1. Create `com.yscanner.geometry.models.Quadrilateral` data class with properties `topLeft`, `topRight`, `bottomRight`, `bottomLeft` and methods `area()`, `isConvex()`, `contains()`, `toFloatArray()`.
+2. Define interfaces: `BoundaryExtractor`, `EnvelopeComputer`, `QuadrilateralFitter`, `CornerRefiner` in `com.yscanner.geometry.interfaces`.
 3. Implement `OpenCvBoundaryExtractor` for contour extraction and noise filtering of segmentation masks.
 4. Implement `OpenCvEnvelopeComputer` utilizing OpenCV's `convexHull` to find the outer envelope.
 5. Implement `StandardQuadrilateralFitter` using the algorithm selected from Spike S02 to map the envelope to an enclosing `Quadrilateral`.

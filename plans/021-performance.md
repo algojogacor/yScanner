@@ -33,21 +33,21 @@ All major features (scanning, enhancement, ML models, PDF export) are implemente
 - M19 (End-to-End Workflow & Polish)
 
 ## Components
-- `com.localscan.core.memory.MemoryManager` (New/Updated)
-- `com.localscan.core.performance.ThermalMonitor` (New)
-- `com.localscan.core.performance.DeviceCapabilities` (New)
-- `com.localscan.scanner.ml.DocumentDetector`
-- `com.localscan.scanner.processing.ImageEnhancer`
-- `com.localscan.pdf.PdfGenerator`
-- `com.localscan.app.LocalScanApplication`
+- `com.yscanner.core.memory.MemoryManager` (New/Updated)
+- `com.yscanner.core.performance.ThermalMonitor` (New)
+- `com.yscanner.core.performance.DeviceCapabilities` (New)
+- `com.yscanner.scanner.ml.DocumentDetector`
+- `com.yscanner.scanner.processing.ImageEnhancer`
+- `com.yscanner.pdf.PdfGenerator`
+- `com.yscanner.app.YScannerApplication`
 
 ## Data Flow
 - **Memory Management**: Images/Mats enter processing pipelines -> Bitmaps/Mats are pooled/reused -> Processed data saved to disk -> In-memory buffers aggressively cleared via `try/finally`.
 - **Thermal & Performance**: System thermal state -> `ThermalMonitor` -> `DocumentDetector` (adjusts FPS/inference rate) and `DeviceCapabilities` (adjusts resolutions).
 
 ## Implementation Steps
-1. Create `com.localscan.core.performance.DeviceCapabilities` to detect RAM class and CPU capabilities, establishing memory budgets and resolution limits.
-2. Implement `com.localscan.core.performance.ThermalMonitor` to listen to system thermal states (API 29+ `PowerManager.OnThermalStatusChangedListener`).
+1. Create `com.yscanner.core.performance.DeviceCapabilities` to detect RAM class and CPU capabilities, establishing memory budgets and resolution limits.
+2. Implement `com.yscanner.core.performance.ThermalMonitor` to listen to system thermal states (API 29+ `PowerManager.OnThermalStatusChangedListener`).
 3. Update `DocumentDetector` and CameraX analyzers to hook into `ThermalMonitor` and throttle frame rate/inference frequency if thermal state degrades.
 4. Review and refactor all OpenCV usage (e.g., `ImageEnhancer`, geometry correction) to ensure `Mat.release()` is explicitly called within `try/finally` blocks.
 5. Review CameraX `ImageAnalysis.Analyzer` implementations to guarantee `ImageProxy.close()` is called deterministically.

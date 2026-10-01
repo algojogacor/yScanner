@@ -2,4 +2,4 @@
 -keep class androidx.compose.** { *; }
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keep class com.localscan.domain.model.** { *; }
+-keep class com.yscanner.domain.model.** { *; }

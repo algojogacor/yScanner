@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.camera"
+    namespace = "com.yscanner.camera"
     compileSdk = 35
 
     defaultConfig {

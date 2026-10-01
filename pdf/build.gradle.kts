@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.pdf"
+    namespace = "com.yscanner.pdf"
     compileSdk = 35
 
     defaultConfig {

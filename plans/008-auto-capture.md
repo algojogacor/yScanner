@@ -33,14 +33,14 @@ The app module is a default Android scaffold. The `SmoothedTarget` and temporal 
 - Basic CameraX `ImageCapture` setup from earlier milestones.
 
 ## Components
-- `com.localscan.app.domain.model.CaptureReadiness`: Data class with `isReady`, `stabilityScore`, `qualityEstimate`, `reason`.
-- `com.localscan.app.domain.evaluator.CaptureReadinessEvaluator`: Interface mapping `SmoothedTarget` -> `CaptureReadiness`.
-- `com.localscan.app.domain.evaluator.DefaultCaptureReadinessEvaluator`: Implementation of `CaptureReadinessEvaluator`.
-- `com.localscan.app.domain.controller.AutoCaptureState`: Enum (IDLE, EVALUATING, COUNTDOWN, CAPTURING, DISABLED).
-- `com.localscan.app.domain.controller.AutoCaptureController`: Interface with `StateFlow<AutoCaptureState>`.
-- `com.localscan.app.domain.controller.DefaultAutoCaptureController`: Implementation handling the state machine and timer.
-- `com.localscan.app.ui.camera.CameraScreen`: Updated Jetpack Compose UI to include countdown indicator and auto-capture toggle.
-- `com.localscan.app.ui.camera.CameraViewModel`: Handles bridging the controller states to UI and handling manual shutter events.
+- `com.yscanner.app.domain.model.CaptureReadiness`: Data class with `isReady`, `stabilityScore`, `qualityEstimate`, `reason`.
+- `com.yscanner.app.domain.evaluator.CaptureReadinessEvaluator`: Interface mapping `SmoothedTarget` -> `CaptureReadiness`.
+- `com.yscanner.app.domain.evaluator.DefaultCaptureReadinessEvaluator`: Implementation of `CaptureReadinessEvaluator`.
+- `com.yscanner.app.domain.controller.AutoCaptureState`: Enum (IDLE, EVALUATING, COUNTDOWN, CAPTURING, DISABLED).
+- `com.yscanner.app.domain.controller.AutoCaptureController`: Interface with `StateFlow<AutoCaptureState>`.
+- `com.yscanner.app.domain.controller.DefaultAutoCaptureController`: Implementation handling the state machine and timer.
+- `com.yscanner.app.ui.camera.CameraScreen`: Updated Jetpack Compose UI to include countdown indicator and auto-capture toggle.
+- `com.yscanner.app.ui.camera.CameraViewModel`: Handles bridging the controller states to UI and handling manual shutter events.
 
 ## Data Flow
 1. `SmoothedTarget` -> `CaptureReadinessEvaluator` -> `CaptureReadiness`.
@@ -50,7 +50,7 @@ The app module is a default Android scaffold. The `SmoothedTarget` and temporal 
 5. Manual Shutter -> Bypasses `AutoCaptureController`, directly triggers `ImageCapture`.
 
 ## Implementation Steps
-1. Create `CaptureReadiness` data class and `AutoCaptureState` enum in `com.localscan.app.domain`.
+1. Create `CaptureReadiness` data class and `AutoCaptureState` enum in `com.yscanner.app.domain`.
 2. Create `CaptureReadinessEvaluator` interface and `DefaultCaptureReadinessEvaluator` implementation.
 3. Create `AutoCaptureController` interface and `DefaultAutoCaptureController`.
 4. In `DefaultAutoCaptureController`, implement the state machine using Kotlin Coroutines `StateFlow` and `delay(2000)` for the countdown. Support cancellation if `SmoothedTarget` becomes unstable.

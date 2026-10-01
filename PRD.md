@@ -1,6 +1,6 @@
 PRD.md
 
-LOCALSCAN — PRODUCT REQUIREMENTS DOCUMENT
+yScanner — PRODUCT REQUIREMENTS DOCUMENT
 
 Status: Product and Technical Baseline
 
@@ -22,7 +22,7 @@ Visual design, branding, color system, typography, component styling, animations
 1. PRODUCT OVERVIEW
    ==================================================
 
-LocalScan adalah aplikasi document scanner native Android yang berfokus pada kualitas hasil scan, automatic document detection, perspective correction, book scanning, local AI processing, dan workflow multi-page yang cepat dan dapat dikendalikan sepenuhnya oleh pengguna.
+yScanner adalah aplikasi document scanner native Android yang berfokus pada kualitas hasil scan, automatic document detection, perspective correction, book scanning, local AI processing, dan workflow multi-page yang cepat dan dapat dikendalikan sepenuhnya oleh pengguna.
 
 Produk mengambil pola perilaku yang sudah terbukti dari scanner matang seperti vFlat, CamScanner, Adobe Scan, Genius Scan, SwiftScan, dan implementasi teknis seperti FairScan sebagai benchmark.
 
@@ -1775,7 +1775,7 @@ Tidak boleh menyalin:
 35. FINAL PRODUCT DEFINITION
 ============================
 
-LocalScan adalah scanner Android native yang:
+yScanner adalah scanner Android native yang:
 
 * melihat dokumen menggunakan local AI;
 * menampilkan boundary secara live;

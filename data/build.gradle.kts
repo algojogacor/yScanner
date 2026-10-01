@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.localscan.data"
+    namespace = "com.yscanner.data"
     compileSdk = 35
 
     defaultConfig {

@@ -37,15 +37,15 @@ The `:detection` module exists but is empty. The `:camera` module from M01/M02 p
 - Spike S01 (Model Selection) completion, to determine model architecture and runtime.
 
 ## Components
-- `com.localscan.detection.SegmentationModel` (interface)
-- `com.localscan.detection.tflite.TfLiteSegmentationModel` (implementation)
-- `com.localscan.detection.CandidateExtractor` (interface)
-- `com.localscan.detection.impl.OpenCvCandidateExtractor` (implementation using OpenCV for contour finding)
-- `com.localscan.detection.ModelInput` (data class)
-- `com.localscan.detection.SegmentationOutput` (data class)
-- `com.localscan.detection.DocumentCandidate` (data class: id, boundary, confidence, area)
-- `com.localscan.detection.FrameProcessor` (integrates model and extractor)
-- `com.localscan.detection.ModelManager` (handles model file management)
+- `com.yscanner.detection.SegmentationModel` (interface)
+- `com.yscanner.detection.tflite.TfLiteSegmentationModel` (implementation)
+- `com.yscanner.detection.CandidateExtractor` (interface)
+- `com.yscanner.detection.impl.OpenCvCandidateExtractor` (implementation using OpenCV for contour finding)
+- `com.yscanner.detection.ModelInput` (data class)
+- `com.yscanner.detection.SegmentationOutput` (data class)
+- `com.yscanner.detection.DocumentCandidate` (data class: id, boundary, confidence, area)
+- `com.yscanner.detection.FrameProcessor` (integrates model and extractor)
+- `com.yscanner.detection.ModelManager` (handles model file management)
 
 ## Data Flow
 1. `FrameAnalyzer` (from `:camera`) emits an `ImageProxy`.
@@ -56,20 +56,20 @@ The `:detection` module exists but is empty. The `:camera` module from M01/M02 p
 6. Returns `List<DocumentCandidate>` to the camera/UI layers.
 
 ## Implementation Steps
-1. Create data models in `com.localscan.detection`: `ModelInput`, `SegmentationOutput`, `DocumentCandidate`.
-2. Define interfaces: `SegmentationModel`, `CandidateExtractor` in `com.localscan.detection`.
-3. Implement `TfLiteSegmentationModel` in `com.localscan.detection.tflite`:
+1. Create data models in `com.yscanner.detection`: `ModelInput`, `SegmentationOutput`, `DocumentCandidate`.
+2. Define interfaces: `SegmentationModel`, `CandidateExtractor` in `com.yscanner.detection`.
+3. Implement `TfLiteSegmentationModel` in `com.yscanner.detection.tflite`:
    - Setup LiteRT/TFLite interpreter.
    - Implement `suspend fun infer(input: ModelInput): SegmentationOutput` on an I/O or Default dispatcher.
    - Implement CPU fallback mechanisms (e.g. NNAPI/GPU delegates with try-catch).
-4. Implement input conversion in `com.localscan.detection.util.ImageConverter`:
+4. Implement input conversion in `com.yscanner.detection.util.ImageConverter`:
    - `ImageProxy` to `ByteBuffer` taking into account model dimensions and input format (e.g. RGB, normalization).
-5. Implement `OpenCvCandidateExtractor` in `com.localscan.detection.impl`:
+5. Implement `OpenCvCandidateExtractor` in `com.yscanner.detection.impl`:
    - Threshold the mask.
    - Use OpenCV to find contours (`findContours`).
    - Filter contours by area and shape (connected component analysis).
    - Convert to `DocumentCandidate` objects.
-6. Implement `ModelManager` in `com.localscan.detection` for loading model from assets and lifecycle management (load once, reuse, release on scope exit).
+6. Implement `ModelManager` in `com.yscanner.detection` for loading model from assets and lifecycle management (load once, reuse, release on scope exit).
 7. Create `FrameProcessor` to tie everything together.
 
 ## Testing

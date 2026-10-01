@@ -1,6 +1,6 @@
 ARCHITECTURE.md
 
-# LocalScan — System Architecture
+# yScanner — System Architecture
 
 Status: Technical Architecture Baseline
 
@@ -24,7 +24,7 @@ Visual design is intentionally outside this document.
 
 # 1. ARCHITECTURE OBJECTIVE
 
-LocalScan harus dibangun sebagai scanner pipeline yang modular, testable, memory-conscious, dan dapat dikembangkan secara bertahap.
+yScanner harus dibangun sebagai scanner pipeline yang modular, testable, memory-conscious, dan dapat dikembangkan secara bertahap.
 
 Arsitektur harus memisahkan:
 
@@ -224,7 +224,7 @@ Ia tidak memiliki otoritas untuk:
 Logical module structure:
 
 ```text
-LocalScan/
+yScanner/
 │
 ├── app/
 │
@@ -732,7 +732,7 @@ The presentation layer receives already-transformed display coordinates.
 
 # 18. COORDINATE SYSTEM ARCHITECTURE
 
-LocalScan has multiple coordinate systems:
+yScanner has multiple coordinate systems:
 
 ```text
 1. Camera sensor coordinates
@@ -2599,7 +2599,7 @@ Before considering the architecture stable, verify:
 
 # 84. FINAL ARCHITECTURE DEFINITION
 
-LocalScan follows a modular pipeline architecture in which:
+yScanner follows a modular pipeline architecture in which:
 
 CameraX handles acquisition.
 

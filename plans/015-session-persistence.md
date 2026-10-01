@@ -35,14 +35,14 @@ The repository currently has only a default Android scaffold with a single `:app
 - Standard Android Jetpack libraries (Room, WorkManager).
 
 ## Components
-- `com.localscan.data.db.AppDatabase`: Room database instance.
-- `com.localscan.data.db.dao.DocumentDao`: Data access object for documents and pages.
-- `com.localscan.data.entity.DocumentEntity`: Room entity for a scanning session/document.
-- `com.localscan.data.entity.PageEntity`: Room entity for an individual page (stores file paths, order, crop coordinates).
-- `com.localscan.data.repository.DocumentRepository`: Interface and implementation (`DocumentRepositoryImpl`) for CRUD operations on documents and pages.
-- `com.localscan.data.storage.SourceAssetManager`: Interface and implementation (`SourceAssetManagerImpl`) for reading/writing image files.
-- `com.localscan.data.session.SessionPersistence`: Interface and implementation (`SessionPersistenceImpl`) for saving/loading sessions.
-- `com.localscan.data.storage.StorageHierarchy`: Utility object to manage the directory structures.
+- `com.yscanner.data.db.AppDatabase`: Room database instance.
+- `com.yscanner.data.db.dao.DocumentDao`: Data access object for documents and pages.
+- `com.yscanner.data.entity.DocumentEntity`: Room entity for a scanning session/document.
+- `com.yscanner.data.entity.PageEntity`: Room entity for an individual page (stores file paths, order, crop coordinates).
+- `com.yscanner.data.repository.DocumentRepository`: Interface and implementation (`DocumentRepositoryImpl`) for CRUD operations on documents and pages.
+- `com.yscanner.data.storage.SourceAssetManager`: Interface and implementation (`SourceAssetManagerImpl`) for reading/writing image files.
+- `com.yscanner.data.session.SessionPersistence`: Interface and implementation (`SessionPersistenceImpl`) for saving/loading sessions.
+- `com.yscanner.data.storage.StorageHierarchy`: Utility object to manage the directory structures.
 
 ## Data Flow
 1. **New Capture**: Camera captures an image -> `SourceAssetManager` stores to `sessions/<session-id>/sources/` -> `DocumentRepository` creates/updates `PageEntity`.
@@ -51,7 +51,7 @@ The repository currently has only a default Android scaffold with a single `:app
 
 ## Implementation Steps
 1. **Storage Hierarchy Setup**
-   - Create `StorageHierarchy` in `com.localscan.data.storage` managing:
+   - Create `StorageHierarchy` in `com.yscanner.data.storage` managing:
      - `sessions/<session-id>/metadata`
      - `sessions/<session-id>/sources/`
      - `sessions/<session-id>/derived/`
@@ -85,7 +85,7 @@ The repository currently has only a default Android scaffold with a single `:app
 - **Recovery Tests**: Unit test simulating process death (recreating `SessionPersistenceImpl` and verifying `recoverInterruptedSessions()` correctly rebuilds the active session state).
 
 ## Validation
-- Launch app, capture two pages, force process kill via ADB (`adb shell am kill com.localscan.app`), restart app -> verify session resumes with two pages.
+- Launch app, capture two pages, force process kill via ADB (`adb shell am kill com.yscanner.app`), restart app -> verify session resumes with two pages.
 - Verify storage hierarchy maps correctly to the device's internal app data directory.
 - Verify `CleanupWorker` correctly identifies and removes unreferenced files.
 

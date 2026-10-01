@@ -1,13 +1,13 @@
 BRIEF.md
 
-LOCALSCAN — PROJECT BRIEF
+yScanner — PROJECT BRIEF
 
 ==================================================
 
 1. PROJECT SUMMARY
    ==================================================
 
-LocalScan adalah aplikasi document scanner native Android yang berfokus pada kualitas scan, automatic document detection, perspective correction, book scanning, local AI, dan workflow multi-page.
+yScanner adalah aplikasi document scanner native Android yang berfokus pada kualitas scan, automatic document detection, perspective correction, book scanning, local AI, dan workflow multi-page.
 
 Tujuan produk adalah memberikan pengalaman scanner yang setara dengan pola penggunaan scanner matang seperti vFlat dan CamScanner, tetapi dengan:
 
@@ -1002,7 +1002,7 @@ The brief defines product behavior and engineering requirements only.
 34. PRODUCT DEFINITION IN ONE PARAGRAPH
 =======================================
 
-LocalScan adalah document scanner native Android yang menggunakan local AI untuk memahami dokumen secara real-time, mempertahankan target yang dipilih user melalui tap dan temporal tracking, melakukan automatic capture atau manual capture, memperbaiki geometry pada full-resolution image, menggunakan enclosing quadrilateral sebagai crop standar termasuk untuk dokumen kompleks/concave, menyediakan One Page dan dedicated Two Page book scanning dengan gutter detection serta mandatory curved-page dewarping, menyediakan Natural dan Clean enhancement yang non-destructive, mengelola hasil melalui PageObject dan multi-page workflow, serta menghasilkan PDF secara lokal tanpa server, account, atau iklan.
+yScanner adalah document scanner native Android yang menggunakan local AI untuk memahami dokumen secara real-time, mempertahankan target yang dipilih user melalui tap dan temporal tracking, melakukan automatic capture atau manual capture, memperbaiki geometry pada full-resolution image, menggunakan enclosing quadrilateral sebagai crop standar termasuk untuk dokumen kompleks/concave, menyediakan One Page dan dedicated Two Page book scanning dengan gutter detection serta mandatory curved-page dewarping, menyediakan Natural dan Clean enhancement yang non-destructive, mengelola hasil melalui PageObject dan multi-page workflow, serta menghasilkan PDF secara lokal tanpa server, account, atau iklan.
 
 ==================================================
 35. CORE PRODUCT MANTRA

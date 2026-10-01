@@ -35,14 +35,14 @@ Performance optimizations (M20) are complete. Testing is primarily unit-based wi
 - Existing end-to-end processing pipeline, including detection, geometry adjustment, processing, and PDF export.
 
 ## Components
-- `com.localscan.testfixtures`: New module for shared test data and utilities.
-- `com.localscan.testfixtures.corpus.TestCorpus`: Registry for test images and their expected outputs.
-- `com.localscan.testfixtures.metrics.GeometryMetrics`: Calculates IoU and corner error.
-- `com.localscan.testfixtures.metrics.ImageMetrics`: Calculates PSNR, SSIM, or perceptual diffs.
-- `com.localscan.pipeline.GeometryRegressionTest`: Instrumented test suite for geometry.
-- `com.localscan.pipeline.EnhancementRegressionTest`: Instrumented test suite for image processing.
-- `com.localscan.pipeline.StressTest`: Suite for memory and stability under load.
-- `com.localscan.testfixtures.benchmark.BenchmarkRecorder`: Saves and compares test results against baselines.
+- `com.yscanner.testfixtures`: New module for shared test data and utilities.
+- `com.yscanner.testfixtures.corpus.TestCorpus`: Registry for test images and their expected outputs.
+- `com.yscanner.testfixtures.metrics.GeometryMetrics`: Calculates IoU and corner error.
+- `com.yscanner.testfixtures.metrics.ImageMetrics`: Calculates PSNR, SSIM, or perceptual diffs.
+- `com.yscanner.pipeline.GeometryRegressionTest`: Instrumented test suite for geometry.
+- `com.yscanner.pipeline.EnhancementRegressionTest`: Instrumented test suite for image processing.
+- `com.yscanner.pipeline.StressTest`: Suite for memory and stability under load.
+- `com.yscanner.testfixtures.benchmark.BenchmarkRecorder`: Saves and compares test results against baselines.
 
 ## Data Flow
 1. `TestCorpus` loads input images and expected golden data (JSON for geometry, reference images for enhancement).

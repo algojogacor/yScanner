@@ -1,4 +1,4 @@
 -keep class org.tensorflow.lite.** { *; }
 -dontwarn org.tensorflow.lite.**
 -keep class com.google.ai.edge.litert.** { *; }
--keep class com.localscan.detection.** { *; }
+-keep class com.yscanner.detection.** { *; }

@@ -40,14 +40,14 @@ The core PDF rendering engine from M18 exists and can generate basic PDF files, 
 - The `Document` data model containing page metadata.
 
 ## Components
-- `com.localscan.export.PdfSizeEstimator`: Interface for estimation.
-- `com.localscan.export.PdfSizeEstimatorImpl`: Implementation applying dimension and compression heuristics.
-- `com.localscan.export.QualityProfile`: Enum or sealed class defining High, Balanced, Small parameters.
-- `com.localscan.export.PageSizeOption`: Enum for A4, A5, B5, Letter, Auto.
-- `com.localscan.export.ui.ExportSettingsScreen`: Compose screen for configuring export.
-- `com.localscan.export.ui.ExportSettingsViewModel`: ViewModel managing export state and size estimation.
-- `com.localscan.export.ui.ExportProgressDialog`: Compose dialog showing rendering progress.
-- `com.localscan.export.ShareHelper`: Utility for invoking Android `Intent.ACTION_SEND`.
+- `com.yscanner.export.PdfSizeEstimator`: Interface for estimation.
+- `com.yscanner.export.PdfSizeEstimatorImpl`: Implementation applying dimension and compression heuristics.
+- `com.yscanner.export.QualityProfile`: Enum or sealed class defining High, Balanced, Small parameters.
+- `com.yscanner.export.PageSizeOption`: Enum for A4, A5, B5, Letter, Auto.
+- `com.yscanner.export.ui.ExportSettingsScreen`: Compose screen for configuring export.
+- `com.yscanner.export.ui.ExportSettingsViewModel`: ViewModel managing export state and size estimation.
+- `com.yscanner.export.ui.ExportProgressDialog`: Compose dialog showing rendering progress.
+- `com.yscanner.export.ShareHelper`: Utility for invoking Android `Intent.ACTION_SEND`.
 
 ## Data Flow
 1. User opens Export Settings. `ExportSettingsViewModel` initializes with default filename, A4 size, and Balanced quality.
@@ -59,7 +59,7 @@ The core PDF rendering engine from M18 exists and can generate basic PDF files, 
 7. On completion, the file is saved to public storage, and `ShareHelper` opens the system ShareSheet.
 
 ## Implementation Steps
-1. **Quality Profiles & Page Sizes**: Define `QualityProfile` (JPEG quality, scale factors) and `PageSizeOption` (dimensions in points) enums in `com.localscan.export`.
+1. **Quality Profiles & Page Sizes**: Define `QualityProfile` (JPEG quality, scale factors) and `PageSizeOption` (dimensions in points) enums in `com.yscanner.export`.
 2. **Size Estimator**: 
    - Create `PdfSizeEstimator` interface.
    - Implement `PdfSizeEstimatorImpl` to calculate base size (Page area * resolution factor * JPEG compression ratio based on `QualityProfile`) plus PDF overhead (~2-5KB per page).
