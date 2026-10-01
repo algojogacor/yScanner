@@ -309,3 +309,96 @@ be selected autonomously — candidates are collected and the decision is escala
 ### Commit
 
 `feat(detection): add model-agnostic segmentation scaffolding and benchmark harness`
+
+---
+
+## 2026-10-01 — M04 Geometry Engine
+
+### Objective
+
+Implement the geometry engine that turns a document boundary contour into an enclosing
+quadrilateral: mask → boundary extraction → outer envelope → quad fitting → corner refinement.
+Spike S02 (quad-fitting algorithm choice) is folded into this milestone.
+
+### Changes
+
+**:geometry module — pure Kotlin, zero OpenCV, zero Android framework**
+- `GeometryPrimitives.kt` — `Boundary`, `RectF`, shoelace `signedPolygonArea`, `polygonPerimeter`,
+  `cross`, `distanceToSegment`, ray-casting `pointInPolygon`, and `convexHull` (Andrew's monotone
+  chain, O(n log n), duplicate- and collinear-reducing).
+- `BinaryMask.kt` — bounds-safe binary mask over a `ByteArray`, with `fromFloatArray` (thresholded
+  probabilities) and `filledQuad` (rasterises a quad; test-only ground-truth helper).
+- `BoundaryExtractor.kt` — 8-connected component labelling (BFS flood fill) + Moore-neighbour
+  contour tracing, noise filtering by component area, sorted largest-first. Guarded by a step budget
+  of `4*w*h + 8` so malformed input cannot loop forever.
+- `PolygonApproximator.kt` — Douglas–Peucker `approximate`, plus `approximateToVertexCount` which
+  binary-searches epsilon over `[0, perimeter]` to reach a target vertex count. Treats the input as a
+  **closed** polygon; running open-polyline DP on a contour would pin two adjacent points and produce
+  a degenerate quad.
+- `QuadrilateralFitter.kt` — `QuadrilateralFitter` interface + `DefaultQuadrilateralFitter` with two
+  strategies scored against each other:
+  - **A: Douglas–Peucker** on the convex hull → exactly 4 vertices. Preferred when the document
+    genuinely is a quadrilateral, because it keeps real extreme corners.
+  - **B: minimum-area enclosing rectangle** (per-hull-edge orthonormal projection). Guaranteed
+    fallback for triangular or rounded hulls.
+  Candidates are gated (`minAreaRatio`, `minFillRatio`) then scored by fill ratio closest to 1.0;
+  the result is normalised by `orderCorners` to `topLeft → topRight → bottomRight → bottomLeft`.
+- `QuadRefinement.kt` — conservative first-pass corner snapping: nearest-foreground search within a
+  bounded radius, clamped so no corner moves more than `searchRadius`, reverting to the input if the
+  result would be non-convex. M08 extends this to full-resolution ROI refinement.
+
+### Validation
+
+- `./gradlew :geometry:test` → **BUILD SUCCESSFUL**.
+- `./gradlew test` (all modules) → **BUILD SUCCESSFUL**.
+- **Full suite: 207 unique tests, 0 failures, 0 errors** (was 117 at session start; 167 after M03).
+- Geometry suite: 39 tests covering convex-hull edge cases (collinear, duplicate, <3 points),
+  shoelace winding sign, centroid/bounding-box, point-in-polygon incl. on-edge, `distanceToSegment`
+  endpoint clamping, mask bounds safety, thresholding, component labelling + noise filtering,
+  degenerate masks (empty, 1-pixel, full-frame, zero-sized), Douglas–Peucker reduction,
+  `orderCorners` permutation invariance, and fitting of axis-aligned / 20°-rotated /
+  perspective-skewed quads with corner-order assertions.
+
+### Results
+
+- Corner ordering verified correct: `atan2` ascending in image coordinates traverses visually
+  clockwise (up → right → down → left), and rotating that cycle to start at the `min(x+y)` corner
+  yields exactly `topLeft → topRight → bottomRight → bottomLeft`.
+- One test failure during development exposed a genuine documentation defect: the `minAreaRatio` gate
+  was documented as rejecting "near-degenerate slivers", but because it divides by the boundary's
+  **own** bounding box it can never reject an axis-aligned bar (ratio is 1.0 by construction). The
+  KDoc was corrected to state the real semantics, and a second test was added pinning the actual
+  behaviour. The implementation was left unchanged — it is correct for the false positive the gate
+  exists to catch (a long thin diagonal edge line), which is the realistic case.
+
+### Decisions
+
+1. **Pure Kotlin, no OpenCV.** Driven by the APK finding below: OpenCV contributes ~111 MB of native
+   libraries and was only needed for contour finding and quad fitting, both of which are a few
+   hundred lines of testable Kotlin. This also makes the whole geometry core JVM-unit-testable with
+   no device and no Robolectric.
+2. **Two-strategy fitting with scoring**, rather than committing to one algorithm. Douglas–Peucker is
+   tighter on true quadrilaterals; the min-area rectangle is the safety net. Committing to either
+   alone would fail a real class of inputs.
+3. **`fit` does not judge absolute size.** It receives only the boundary, never the frame dimensions,
+   so "is this too small to be a document?" must be decided by the caller that knows the frame size.
+
+### Problems
+
+- An implementation sub-agent produced the six source files but did not deliver its test suite within
+  its budget; it was stopped and the lead wrote and verified the tests directly. The agent's revision
+  of `DefaultQuadrilateralFitter` (gating candidates *before* scoring rather than after) was kept —
+  it is the better design.
+- `:geometry` still declares `implementation(libs.opencv)` in its build file although nothing uses it.
+  Removing it is a follow-up that belongs with the APK-size work.
+
+### Next
+
+- Wire `CandidateExtractor` in `:detection` to bridge `ProbabilityMap` → `BinaryMask` → boundary →
+  quad, closing the detection→geometry pipeline.
+- M05 target selection (depends on M02 + M04, both now available).
+- **S01 gate still open — human decision required before any model weights are vendored.**
+
+### Commit
+
+`feat(geometry): add pure-Kotlin boundary extraction, envelope and quad fitting`
