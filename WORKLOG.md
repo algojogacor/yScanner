@@ -402,3 +402,189 @@ Spike S02 (quad-fitting algorithm choice) is folded into this milestone.
 ### Commit
 
 `feat(geometry): add pure-Kotlin boundary extraction, envelope and quad fitting`
+
+---
+
+## 2026-10-01 — Detection→geometry seam (CandidateExtractor)
+
+### Objective
+
+Close the gap between the segmentation postprocessor and the geometry engine: turn the
+model-agnostic `ProbabilityMap` into ranked `DocumentCandidate`s in frame space.
+
+### Changes
+
+**`:detection`**
+- `extract/CandidateExtractor.kt` — `CandidateExtractor` interface + `DefaultCandidateExtractor`.
+  Pipeline: `ProbabilityMap` → threshold → `BinaryMask` → connected components + contour tracing
+  (`BoundaryExtractor`) → enclosing quad (`QuadrilateralFitter`) → scale model→frame → rank by area,
+  cap count. Confidence is the mean probability inside the fitted polygon.
+- Two design points: frame-relative size filtering lives **here**, not in the fitter, because
+  `QuadrilateralFitter.fit` only ever sees a boundary and never the frame dimensions, so it cannot
+  judge whether a shape is too small to be a document. And coordinates are scaled via
+  caller-supplied `frameWidth`/`frameHeight` rather than an implicit model/frame ratio, because the
+  analysis and capture streams differ in size (AGENTS.md §21).
+
+### Validation
+
+- `./gradlew :detection:test` → **BUILD SUCCESSFUL**.
+- **Full suite: 223 unique tests, 0 failures, 0 errors.**
+
+### Results
+
+- `CandidateExtractorTest` (16): model→frame scaling including non-uniform aspect ratios, area
+  ranking, candidate capping, `minAreaFraction` rejection, threshold sensitivity, determinism,
+  degenerate inputs, diagonal-band rejection.
+
+### Commit
+
+`feat(detection): add CandidateExtractor seam (probability map -> ranked quads)`
+
+---
+
+## 2026-10-01 — M06 Temporal Tracking (spike S03)
+
+### Objective
+
+Damp detector jitter on the tracked quad without adding perceptible lag, and provide the
+measurement needed to choose between filtering strategies.
+
+### Changes
+
+**`:detection`**
+- `tracking/OneEuroFilter.kt` — the 1-Euro filter (Casiez/Roussel/Vogel, CHI 2012) on a scalar
+  signal. Speed-adaptive: smooth while still, cutoff opens while moving, so it avoids the
+  smoothness-vs-lag trade-off a fixed-alpha EMA forces. `PointFOneEuroFilter` filters `x` and `y`
+  as independent channels — a shared speed estimate would let motion on one axis wrongly
+  desensitise the other.
+- `tracking/QuadSmoother.kt` — eight independent channels (4 corners × 2 coordinates) over either
+  `ONE_EURO` or `EXPONENTIAL`. Both methods exist so S03 can be settled by measurement;
+  `JitterStats` supplies the metric (mean corner displacement = jitter, mean distance from raw =
+  lag proxy) and `SmoothingMethod` is the switch.
+- Guards: confidence passes through verbatim (smoothing geometry must not invent confidence); a
+  non-convex blend is rejected in favour of the last convex quad emitted; non-finite input and
+  non-positive `dt` return the previous value without poisoning state.
+
+### Validation
+
+- `./gradlew test` → **BUILD SUCCESSFUL**.
+- **Full suite: 241 unique tests, 0 failures, 0 errors.**
+
+### Results
+
+- `OneEuroFilterTest` (9) and `QuadSmootherTest` (9), both deterministic via caller-supplied
+  timestamps. `QuadSmootherTest` pins the non-convex fallback with a concrete pair of quads that
+  are *both* strictly convex yet whose 50/50 blend self-intersects — verified independently before
+  trusting the assertion. Blending eight scalar channels is not the same operation as blending two
+  shapes, so this is a real failure mode, not a hypothetical one.
+
+### Decisions
+
+1. **Both smoothing methods implemented, neither chosen.** S03 is a measurement spike; picking a
+   winner now would be intuition dressed up as a decision. `JitterStats` is the arbiter.
+2. **Timestamps are always caller-supplied.** No clock is read anywhere in the package, which is
+   what makes the whole thing reproducible in a unit test.
+
+### Problems
+
+- The first revision of `QuadSmootherTest` contained an incorrect premise: it asserted an input quad
+  was convex when it was not (the quad's own comment contradicted the assertion). Caught by running
+  the suite. The agent self-corrected to a valid construction; the corrected pair was verified
+  numerically (both inputs convex, blend crosses) before the result was accepted.
+
+### Next
+
+- Integrate a `TargetTracker` against plan 007, composing `QuadSmoother` with `TargetSelector`.
+
+### Commit
+
+`feat(detection): add temporal smoothing for tracked quads (M06, spike S03)`
+
+---
+
+## 2026-10-01 — M05 Target Selection & Tap-to-Guide
+
+### Objective
+
+Decide which visible candidate the user means, hold that choice across frames without flicker,
+and let a tap override it.
+
+### Changes
+
+**`:geometry` — new overlap primitives (pure Kotlin)**
+- `PolygonIntersection.kt` — `convexPolygonIntersection` (Sutherland–Hodgman),
+  `polygonIntersectionArea`, `polygonIoU`. Both inputs are normalised to a consistent winding
+  first; that step is the whole risk in the file, because `Quad` is TL→TR→BR→BL (positive shoelace
+  area since image y grows downwards) while a reversed polygon has the opposite sign. An
+  inconsistent inside test silently returns an empty intersection for two quads that plainly
+  overlap, so the tests exercise partially-overlapping pairs in both windings.
+- `QuadMeasure.kt` — `Quad.centroid()`, area-weighted and matching `Boundary.centroid()`. It lives
+  in `:geometry` because `:domain` is a leaf module and must not depend on `:geometry`.
+
+**`:detection`**
+- `select/TargetSelector.kt` — `TrackingState` (`ACQUIRING`/`TRACKING`/`STABLE`/`LOST`),
+  `TrackedTarget`, `TargetSelectorConfig`, `TargetSelector` + `DefaultTargetSelector`. Selection
+  priority: tap override → temporal IoU match → hold → heuristic (centrality weighted highest per
+  PRD §6.3, then area, confidence, convexity). Ties break on larger area then input order, so the
+  result is fully deterministic. No clock, no randomness, no camera.
+- `DocumentDetector.kt` — removed `TrackedDocument` and `TemporalTracker`. Both were unconsumed and
+  both were superseded: `isStable: Boolean` cannot express a four-state `TrackingState`, and
+  `plans/007` specifies a different `TemporalTracker` signature. Leaving a wrong-signature
+  interface in place would have misled the next reader.
+
+### Validation
+
+- `./gradlew test` → **BUILD SUCCESSFUL**.
+- **Full suite: 264 unique tests, 0 failures, 0 errors** (207 at session start; 223 after the
+  extractor seam; 241 after M06).
+
+### Results
+
+- `PolygonIntersectionTest` (11): identical/disjoint/contained/half-overlapping squares, edge
+  touching, winding invariance on a *partially* overlapping pair, an analytically derived rotated
+  diamond, and degenerate inputs.
+- `TargetSelectorTest` (12): tap override, tap-in-empty-space fallback, persistence under a
+  competing higher-confidence candidate, hold-then-adopt, identity recovery after a brief loss,
+  LOST threshold, STABLE promotion, cold-start centrality/largest, winding invariance, reset, and
+  invalid frame dimensions.
+
+### Decisions
+
+1. **Frame dimensions are passed into `select`.** Centrality needs a reference point, and the
+   plan's three-argument signature had none; making them constructor state would break on rotation.
+2. **A locked target is *held* when nothing matches, not replaced.** This was the one substantive
+   correction made to the delivered implementation. Adopting the best-scoring candidate as soon as
+   nothing matched would break the lock on a single-frame detection glitch: `previous` becomes the
+   new document, the original can never match again, and the target is lost permanently — precisely
+   the flicker this component exists to prevent. Holding for up to `lostFrameThreshold` frames
+   (under 200 ms at 30 fps) lets a briefly lost target resume both its identity and its stability
+   count. Consequence: `LOST` is reported only when the detector proposes nothing at all, since a
+   visible replacement is always adopted instead. The KDoc was corrected to say so rather than
+   continue claiming "no matching candidate for N frames".
+3. **`TargetSelector` kept separate from `DocumentDetector`**, per ARCHITECTURE.md §74. Selection is
+   a pure decision; detection proposes candidates. Keeping them apart is what lets the decision be
+   tested with hand-built quads and no model.
+
+### Problems
+
+- The delivered `DefaultTargetSelector` fell straight through to the heuristic when no candidate
+  matched the previous target, making `lostFrameThreshold` reachable only on a completely empty
+  candidate list. Found by reading the implementation against `plans/006`, not by a failing test —
+  the delivered tests only exercised the empty-list path. Fixed, and two tests added to pin both
+  the hold and the recovery paths.
+- The `tap outside any candidate falls back to heuristics` test is slightly misnamed: with a
+  previous target present it exercises the temporal-match path, not the heuristic. Harmless, but
+  the name overstates what it covers.
+
+### Next
+
+- M07 integration: `TargetTracker` (plan 007) composing `QuadSmoother` + `TargetSelector`, wired
+  into the frame analyzer.
+- M05's camera half (tap → CameraX focus/metering) is not done; `TargetSelector` handles only the
+  selection half of tap-to-guide.
+- **S01 gate still open — human decision required before any model weights are vendored.**
+
+### Commit
+
+`feat(geometry): add convex polygon intersection, IoU and quad centroid`
+`feat(detection): add target selection and tap-to-guide (M05)`
