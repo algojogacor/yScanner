@@ -671,3 +671,102 @@ its spike-S03 math.
 
 `feat(detection): add TemporalTracker and fix unreachable no-target state (M06)`
 `feat(app): add tracked-document outline overlay (M06)`
+
+---
+
+## 2026-10-01 — M08 One Page Full-Resolution Refinement
+
+Plan: `plans/009-one-page-refinement.md`. Spike S06 (`plans/spikes/S06-roi-decoding.md`) remains
+**PENDING** — see *Problems*.
+
+### What landed
+
+| File | Module | Purpose |
+|------|--------|---------|
+| `image/ImageSource.kt` | `:domain` | `ImageRect`, `ImageRegion`, `ImageSource` — Android-free image access |
+| `image/ArgbLuminance.kt` | `:data` | Rec. 601 integer-approximation luma conversion |
+| `image/DecodedRegion.kt` | `:data` | `regionFromDecodedPixels` — the pure requested-vs-decoded reconciliation |
+| `image/FileImageSource.kt` | `:data` | `BitmapRegionDecoder`-backed `ImageSource` |
+| `CornerRefiner.kt` | `:geometry` | Frozen interface + failure contract |
+| `LineFit.kt` | `:geometry` | Total-least-squares line fit; line intersection |
+| `DefaultCornerRefiner.kt` | `:geometry` | Per-corner perpendicular gradient search |
+
+### Results
+
+- **334 tests, 0 failures, 0 errors** across 7 test modules (up from 281; M08 adds 53).
+  - `:geometry` 69 (new: `LineFitTest` 9, `DefaultCornerRefinerTest` 9)
+  - `:data` 34 (new: `ArgbLuminanceTest` 11, `FileImageSourceTest` 9)
+  - `:domain` 44 (new: `ImageRectTest` 15)
+- Full suite verified with `./gradlew test`, counts read from the JUnit XML reports rather than
+  from Gradle's summary line.
+
+### Decisions
+
+1. **`ImageSource` is strategy-agnostic and has no `decodeFull()`.** `plans/009` §48 specifies
+   `decodeRegion(Rect)`, `decodeFull()` and `release()`. The frozen contract is
+   `decodeRegion(ImageRect)` plus `close()` (via `AutoCloseable`) and deliberately **no** full
+   decode: a method whose whole purpose is to materialise the 48 MB bitmap the abstraction exists to
+   avoid is a footgun that will eventually be called. `ImageRect` is integral and Android-free so
+   the pipeline stays JVM-testable.
+2. **The refiner does not use OpenCV, Canny or a Hough transform.** `plans/009` §51 specifies them.
+   Detection already supplies approximate edge directions, so the refiner samples along the edges it
+   *expects* and searches a short perpendicular band at each station. This is cheaper, more robust
+   for this specific job, and keeps `:geometry` free of OpenCV so the tests are plain JVM tests. The
+   general-purpose detector the plan assumed would be solving a harder problem than the one we have.
+3. **`CornerRefiner` sits in `com.yscanner.geometry`, not `com.yscanner.domain.geometry`.** `plans/009`
+   §35 places it in `:domain`, but `:geometry` already holds the primitives it needs
+   (`GeometryPrimitives`, `QuadMeasure`) and already hosts the `CoordinateTransformer` interface, so
+   putting the contract there avoids splitting one abstraction across two modules.
+4. **The requested-vs-decoded reconciliation is extracted into a pure function.** See *Problems*.
+5. **`maxDisplacementPx` is a fixed 40 px default in source-image pixels.** The plan's open question
+   (§88) about dynamic ROI sizing is left open; 40 px is ~1% of a 4032 px capture width but ~3.7% of
+   a 1080p one, so this default should probably scale with capture resolution before release.
+
+### Problems
+
+- **`FileImageSource` was untestable, so `plans/009` §57's `FileImageSourceTest` was unsatisfiable.**
+  Its constructor is private and takes an `android.graphics.BitmapRegionDecoder`, so the class cannot
+  be instantiated in a JVM test at all. Robolectric was rejected: it is not in the Gradle cache (it
+  would need a network download plus the android-all jars) and its `BitmapRegionDecoder` shadow does
+  not faithfully implement `decodeRegion`. Resolved by extracting the genuinely risky step into
+  `regionFromDecodedPixels`, which is pure and fully tested.
+- **The first version of that extraction could not express the bug it claimed to test.** The
+  function took only `(originX, originY, decodedWidth, decodedHeight, ...)` — with no *requested*
+  size, the "OEM returned a smaller region than asked" scenario was unrepresentable. The test named
+  `a decoded size smaller than requested shrinks the region without shifting its origin` passed
+  `3, 3` for both and was effectively a duplicate of the exact-match test above it, while the
+  composition that actually prevents the shift (origin from the *request*, dimensions from the
+  *decode*) sat untested inside the Android adapter. **Fourth instance this session of the same
+  shape: individually-correct pieces whose composition is wrong, invisible to per-component tests.**
+  Fixed by making the function take the requested `ImageRect` so the mismatch is representable, and
+  rewriting the test with a genuinely 8×8 request and a 3×3 decode. The function is now also total —
+  it returns `null` rather than throwing when any buffer is too short.
+- **`LineFit.kt`'s `PARALLEL_EPSILON` KDoc overstated what the guard does.** The comment claimed the
+  epsilon prevents "a wild, far-away point that could drag a corner across the page", but at `1e-9`
+  it only fires for exactly-parallel directions; a pair `1e-6` rad apart passes and yields an
+  intersection ~10⁶× the sample separation away. The bound that actually protects a corner is
+  `CornerRefinerConfig.maxDisplacementPx`. KDoc corrected rather than left flattering.
+- **S06 is not closed, and cannot be here.** Its targets (≤50 ms per corner, ≤20 MB peak) and
+  M08's "memory constraints proven via profiling" acceptance criterion need a physical device. There
+  is no device and no emulator (`adb devices` is empty; the SDK has no `emulator` package). **No
+  decode-time or peak-memory figure is claimed anywhere in the code.** The `BitmapRegionDecoder`
+  call path (`open`/`decodeRegion`/`close`) has **no executable test coverage** in this environment;
+  this is stated in `FileImageSource`'s KDoc so the gap is visible rather than assumed away.
+- The refiner has never seen a real camera capture. Its tests use synthetic images with hard,
+  non-anti-aliased edges, where the nearest-integer central difference carries a sub-pixel bias of
+  up to ~1 px. Real captures are anti-aliased and should behave at least as well, but that is an
+  argument about the algorithm, not a measurement.
+
+### Next
+
+- **M07 Auto Capture** (`plans/008`) — the master plan orders M08 before M07 because M07 needs M10.
+- **M10 Perspective Correction** (`plans/010`) — consumes the refined quad this milestone produces.
+- **S01 gate still open — human decision required before any model weights are vendored.** Everything
+  downstream of model weights remains blocked.
+- Physical-device smoke test still not possible: no APK can be meaningfully built until S01 lands.
+
+### Commit
+
+`feat(domain): add ImageSource abstraction for partial image decoding (M08)`
+`feat(data): add FileImageSource backed by BitmapRegionDecoder (M08)`
+`feat(geometry): implement full-res corner refinement via ROI decoding (M08)`
