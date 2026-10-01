@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":pdf"))
     implementation(project(":import"))
+    implementation(libs.androidx.camera.view)
 
     // AndroidX & Architecture
     implementation(libs.androidx.core.ktx)

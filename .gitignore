@@ -12,3 +12,4 @@ captures
 *.aab
 output.json
 .agents/
+.kotlin/

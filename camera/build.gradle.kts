@@ -26,9 +26,15 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":common"))
 
-    implementation(libs.bundles.camerax)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    api(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+
+    implementation(libs.androidx.exifinterface)
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     testImplementation(project(":test-fixtures"))
     testImplementation(libs.bundles.unit.test)
