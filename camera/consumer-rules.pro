@@ -1,0 +1,3 @@
+-keep class androidx.camera.** { *; }
+-dontwarn androidx.camera.**
+-keep class com.localscan.camera.** { *; }
